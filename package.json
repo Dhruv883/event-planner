@@ -1,0 +1,25 @@
+{
+  "name": "event-planning",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "check-types": "npm run check-types --workspaces",
+    "dev:native": "npm run dev --workspace native",
+    "dev:web": "npm run dev --workspace web",
+    "dev:server": "npm run dev --workspace server",
+    "db:push": "npm run db:push --workspace server",
+    "db:studio": "npm run db:studio --workspace server",
+    "db:generate": "npm run db:generate --workspace server",
+    "db:migrate": "npm run db:migrate --workspace server",
+    "db:start": "npm run db:start --workspace server",
+    "db:watch": "npm run db:watch --workspace server",
+    "db:stop": "npm run db:stop --workspace server",
+    "db:down": "npm run db:down --workspace server"
+  },
+  "packageManager": "npm@10.9.0"
+}
