@@ -1,17 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", "Geist", ui-sans-serif, system-ui, sans-serif,
+  --font-urbanist:
+    "Urbanist", "Inter", "Geist", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }

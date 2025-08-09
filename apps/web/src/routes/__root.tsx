@@ -1,5 +1,3 @@
-import Header from "@/components/header";
-import Loader from "@/components/loader";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import {
@@ -10,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../index.css";
+import Loader from "@/components/loader";
 
 export interface RouterAppContext {}
 
@@ -18,11 +17,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
     meta: [
       {
-        title: "event-planning",
+        title: "Connect",
       },
       {
         name: "description",
-        content: "event-planning is a web application",
+        content: "Connect is a web application",
       },
     ],
     links: [
@@ -39,18 +38,11 @@ function RootComponent() {
     select: (s) => s.isLoading,
   });
 
-
   return (
     <>
       <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
+      <ThemeProvider attribute="class" defaultTheme="light">
         <div className="grid grid-rows-[auto_1fr] h-svh">
-          <Header />
           {isFetching ? <Loader /> : <Outlet />}
         </div>
         <Toaster richColors />

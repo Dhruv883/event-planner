@@ -1,4 +1,4 @@
-import { VitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
@@ -13,14 +13,14 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "event-planning",
-        short_name: "event-planning",
-        description: "event-planning - PWA Application",
+        name: "Connect",
+        short_name: "Connect",
+        description: "Connect - PWA Application",
         theme_color: "#0c0c0c",
       },
       pwaAssets: { disabled: false, config: true },
       devOptions: { enabled: true },
-    })
+    }),
   ],
   resolve: {
     alias: {
