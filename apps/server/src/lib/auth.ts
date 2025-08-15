@@ -9,11 +9,18 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.CORS_ORIGIN || ""],
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
   },
   socialProviders: {
     google: {
+      prompt: "select_account",
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    },
+  },
+  account: {
+    accountLinking: {
+      enabled: true,
     },
   },
 });

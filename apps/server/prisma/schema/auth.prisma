@@ -1,7 +1,8 @@
 model User {
-  id            String    @id @map("_id")
+  id            String    @id
   name          String
   email         String
+  emailVerified Boolean
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
@@ -13,7 +14,7 @@ model User {
 }
 
 model Session {
-  id        String   @id @map("_id")
+  id        String   @id
   expiresAt DateTime
   token     String
   createdAt DateTime
@@ -28,7 +29,7 @@ model Session {
 }
 
 model Account {
-  id                    String    @id @map("_id")
+  id                    String    @id
   accountId             String
   providerId            String
   userId                String
@@ -46,3 +47,13 @@ model Account {
   @@map("account")
 }
 
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
