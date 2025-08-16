@@ -72,7 +72,7 @@ function RouteComponent() {
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
-        callbackURL: `${window.location.origin}/home`,
+        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/events`,
       });
 
       if (error) {
@@ -93,7 +93,7 @@ function RouteComponent() {
     try {
       const { data, error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: `${window.location.origin}/home`,
+        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/events`,
       });
 
       if (error) {

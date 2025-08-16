@@ -10,13 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as HomeRouteImport } from './routes/home'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as CreateRouteImport } from './routes/create'
+import { Route as EventIdRouteImport } from './routes/$eventId'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ManageEventIdRouteImport } from './routes/manage/$eventId'
+import { Route as EditEventIdRouteImport } from './routes/edit/$eventId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -24,9 +34,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateRoute = CreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventIdRoute = EventIdRouteImport.update({
+  id: '/$eventId',
+  path: '/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,39 +54,97 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManageEventIdRoute = ManageEventIdRouteImport.update({
+  id: '/manage/$eventId',
+  path: '/manage/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditEventIdRoute = EditEventIdRouteImport.update({
+  id: '/edit/$eventId',
+  path: '/edit/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/home': typeof HomeRoute
+  '/$eventId': typeof EventIdRoute
+  '/create': typeof CreateRoute
+  '/events': typeof EventsRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/edit/$eventId': typeof EditEventIdRoute
+  '/manage/$eventId': typeof ManageEventIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/home': typeof HomeRoute
+  '/$eventId': typeof EventIdRoute
+  '/create': typeof CreateRoute
+  '/events': typeof EventsRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/edit/$eventId': typeof EditEventIdRoute
+  '/manage/$eventId': typeof ManageEventIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/home': typeof HomeRoute
+  '/$eventId': typeof EventIdRoute
+  '/create': typeof CreateRoute
+  '/events': typeof EventsRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/edit/$eventId': typeof EditEventIdRoute
+  '/manage/$eventId': typeof ManageEventIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/home' | '/login' | '/signup'
+  fullPaths:
+    | '/'
+    | '/$eventId'
+    | '/create'
+    | '/events'
+    | '/login'
+    | '/profile'
+    | '/signup'
+    | '/edit/$eventId'
+    | '/manage/$eventId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/home' | '/login' | '/signup'
-  id: '__root__' | '/' | '/home' | '/login' | '/signup'
+  to:
+    | '/'
+    | '/$eventId'
+    | '/create'
+    | '/events'
+    | '/login'
+    | '/profile'
+    | '/signup'
+    | '/edit/$eventId'
+    | '/manage/$eventId'
+  id:
+    | '__root__'
+    | '/'
+    | '/$eventId'
+    | '/create'
+    | '/events'
+    | '/login'
+    | '/profile'
+    | '/signup'
+    | '/edit/$eventId'
+    | '/manage/$eventId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  HomeRoute: typeof HomeRoute
+  EventIdRoute: typeof EventIdRoute
+  CreateRoute: typeof CreateRoute
+  EventsRoute: typeof EventsRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
+  EditEventIdRoute: typeof EditEventIdRoute
+  ManageEventIdRoute: typeof ManageEventIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -85,11 +170,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create': {
+      id: '/create'
+      path: '/create'
+      fullPath: '/create'
+      preLoaderRoute: typeof CreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$eventId': {
+      id: '/$eventId'
+      path: '/$eventId'
+      fullPath: '/$eventId'
+      preLoaderRoute: typeof EventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -99,14 +198,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manage/$eventId': {
+      id: '/manage/$eventId'
+      path: '/manage/$eventId'
+      fullPath: '/manage/$eventId'
+      preLoaderRoute: typeof ManageEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/edit/$eventId': {
+      id: '/edit/$eventId'
+      path: '/edit/$eventId'
+      fullPath: '/edit/$eventId'
+      preLoaderRoute: typeof EditEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  HomeRoute: HomeRoute,
+  EventIdRoute: EventIdRoute,
+  CreateRoute: CreateRoute,
+  EventsRoute: EventsRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
+  EditEventIdRoute: EditEventIdRoute,
+  ManageEventIdRoute: ManageEventIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
