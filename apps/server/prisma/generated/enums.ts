@@ -7,7 +7,58 @@
 *
 * 🟢 You can import this file directly.
 */
+export const EventType = {
+  ONE_OFF: 'ONE_OFF',
+  WHOLE_DAY: 'WHOLE_DAY',
+  MULTI_DAY: 'MULTI_DAY'
+} as const
+
+export type EventType = (typeof EventType)[keyof typeof EventType]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const EventStatus = {
+  PLANNING: 'PLANNING',
+  UPCOMING: 'UPCOMING',
+  LIVE: 'LIVE',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type EventStatus = (typeof EventStatus)[keyof typeof EventStatus]
+
+
+export const AttendeeStatus = {
+  INVITED: 'INVITED',
+  ACCEPTED: 'ACCEPTED',
+  PENDING: 'PENDING',
+  DECLINED: 'DECLINED'
+} as const
+
+export type AttendeeStatus = (typeof AttendeeStatus)[keyof typeof AttendeeStatus]
+
+
+export const PollStatus = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED'
+} as const
+
+export type PollStatus = (typeof PollStatus)[keyof typeof PollStatus]
+
+
+export const PollVoter = {
+  ALL_ATTENDEES: 'ALL_ATTENDEES',
+  ACCEPTED_ATTENDEES: 'ACCEPTED_ATTENDEES',
+  HOSTS_ONLY: 'HOSTS_ONLY'
+} as const
+
+export type PollVoter = (typeof PollVoter)[keyof typeof PollVoter]
+
+
+export const PollResultVisibility = {
+  VISIBLE_TO_ALL: 'VISIBLE_TO_ALL',
+  VISIBLE_TO_HOSTS_ONLY: 'VISIBLE_TO_HOSTS_ONLY',
+  VISIBLE_AFTER_VOTING: 'VISIBLE_AFTER_VOTING',
+  HIDDEN_UNTIL_CLOSED: 'HIDDEN_UNTIL_CLOSED'
+} as const
+
+export type PollResultVisibility = (typeof PollResultVisibility)[keyof typeof PollResultVisibility]

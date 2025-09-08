@@ -61,5 +61,61 @@ export type Account = Prisma.AccountModel
  * 
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model Event
+ * 
+ */
+export type Event = Prisma.EventModel
+/**
+ * Model EventAttendee
+ * 
+ */
+export type EventAttendee = Prisma.EventAttendeeModel
+/**
+ * Model Day
+ * 
+ */
+export type Day = Prisma.DayModel
+/**
+ * Model Activity
+ * 
+ */
+export type Activity = Prisma.ActivityModel
+/**
+ * Model Poll
+ * 
+ */
+export type Poll = Prisma.PollModel
+/**
+ * Model PollOption
+ * 
+ */
+export type PollOption = Prisma.PollOptionModel
+/**
+ * Model PollResponse
+ * 
+ */
+export type PollResponse = Prisma.PollResponseModel
+/**
+ * Model PollSettings
+ * 
+ */
+export type PollSettings = Prisma.PollSettingsModel
 
+export type EventType = $Enums.EventType
+export const EventType = $Enums.EventType
 
+export type EventStatus = $Enums.EventStatus
+export const EventStatus = $Enums.EventStatus
+
+export type AttendeeStatus = $Enums.AttendeeStatus
+export const AttendeeStatus = $Enums.AttendeeStatus
+
+export type PollStatus = $Enums.PollStatus
+export const PollStatus = $Enums.PollStatus
+
+export type PollVoter = $Enums.PollVoter
+export const PollVoter = $Enums.PollVoter
+
+export type PollResultVisibility = $Enums.PollResultVisibility
+export const PollResultVisibility = $Enums.PollResultVisibility

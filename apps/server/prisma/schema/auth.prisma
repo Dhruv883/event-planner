@@ -9,6 +9,12 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  hostedEvents   Event[] @relation("EventHost")
+  coHostedEvents Event[] @relation("EventCoHosts")
+  attendedEvents EventAttendee[]
+  createdPolls   Poll[]            @relation("PollCreator")
+  pollResponses  PollResponse[]
+
   @@unique([email])
   @@map("user")
 }

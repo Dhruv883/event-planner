@@ -6,9 +6,9 @@ import {
   createRootRouteWithContext,
   useRouterState,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../index.css";
 import Loader from "@/components/loader";
+import Navbar from "@/components/navbar";
 
 export interface RouterAppContext {}
 
@@ -20,8 +20,9 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         title: "Connect",
       },
       {
-        name: "description",
-        content: "Connect is a web application",
+        name: "Connect - Modern Event Planning Platform",
+        content:
+          "Plan, manage, and execute unforgettable events with our platform",
       },
     ],
     links: [
@@ -43,11 +44,12 @@ function RootComponent() {
       <HeadContent />
       <ThemeProvider attribute="class" defaultTheme="light">
         <div className="grid grid-rows-[auto_1fr] h-svh">
+          <Navbar />
           {isFetching ? <Loader /> : <Outlet />}
         </div>
         <Toaster richColors />
       </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
+      {/* <TanStackRouterDevtools position="bottom-left" /> */}
     </>
   );
 }

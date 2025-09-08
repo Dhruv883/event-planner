@@ -1,0 +1,71 @@
+enum PollStatus {
+  OPEN
+  CLOSED
+}
+
+enum PollVoter {
+  ALL_ATTENDEES
+  ACCEPTED_ATTENDEES
+  HOSTS_ONLY
+}
+
+enum PollResultVisibility {
+  VISIBLE_TO_ALL
+  VISIBLE_TO_HOSTS_ONLY
+  VISIBLE_AFTER_VOTING
+  HIDDEN_UNTIL_CLOSED
+}
+
+model Poll {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      PollStatus @default(OPEN)
+  expiresAt   DateTime?
+
+  eventId     String
+  event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  creatorId   String
+  creator     User       @relation("PollCreator", fields: [creatorId], references: [id])
+
+  options     PollOption[]
+  responses   PollResponse[]
+  settings    PollSettings?
+}
+
+
+model PollOption {
+  id   String @id @default(cuid())
+  text String
+  order Int
+  pollId String
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  responses PollResponse[]
+}
+
+model PollResponse {
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pollId String
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  pollOptionId String
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, pollOptionId])
+}
+
+model PollSettings {
+  id                      String               @id @default(cuid())
+  allowMultipleSelections Boolean              @default(false)
+  voterPermission         PollVoter            @default(ALL_ATTENDEES)
+  resultVisibility        PollResultVisibility @default(VISIBLE_TO_ALL)
+
+  pollId String @unique
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+}

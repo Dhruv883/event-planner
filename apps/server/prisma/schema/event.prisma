@@ -1,0 +1,80 @@
+enum EventType {
+  ONE_OFF
+  WHOLE_DAY
+  MULTI_DAY
+}
+
+enum EventStatus {
+  PLANNING
+  UPCOMING
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum AttendeeStatus {
+  INVITED
+  ACCEPTED
+  PENDING
+  DECLINED
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  type        EventType
+  status      EventStatus @default(PLANNING)
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  days        Day[]
+
+  hostId String
+  host   User   @relation("EventHost", fields: [hostId], references: [id])
+  coHosts   User[] @relation("EventCoHosts")
+  attendees EventAttendee[]
+  polls     Poll[]
+
+}
+
+model EventAttendee {
+  status    AttendeeStatus @default(PENDING)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+model Day {
+  id         String     @id @default(cuid())
+  date       DateTime
+  activities Activity[]
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, date])
+}
+
+model Activity {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime?
+  location    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  dayId String
+  day   Day    @relation(fields: [dayId], references: [id], onDelete: Cascade)
+}
