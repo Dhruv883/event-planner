@@ -1,7 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/$eventId")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const { data } = await authClient.getSession();
+    if (!data) {
+      throw redirect({ to: "/login" });
+    }
+  },
 });
 
 function RouteComponent() {

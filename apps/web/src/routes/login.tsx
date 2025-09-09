@@ -1,9 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "../lib/auth-client";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const { data } = await authClient.getSession();
+    if (data) {
+      throw redirect({ to: "/events" });
+    }
+  },
 });
 
 function RouteComponent() {
@@ -49,7 +55,7 @@ function RouteComponent() {
       const { data, error } = await authClient.signIn.email({
         email: formData.email,
         password: formData.password,
-        callbackURL: `${window.location.origin}/home`,
+        callbackURL: `${window.location.origin}/events`,
       });
 
       if (error) {
@@ -67,7 +73,7 @@ function RouteComponent() {
     try {
       const { data, error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: `${window.location.origin}/home`,
+        callbackURL: `${window.location.origin}/events`,
       });
 
       if (error) {

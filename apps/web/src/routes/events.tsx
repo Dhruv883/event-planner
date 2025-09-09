@@ -1,22 +1,23 @@
 import { authClient } from "@/lib/auth-client";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/events")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const { data } = await authClient.getSession();
+    if (!data) {
+      throw redirect({ to: "/login" });
+    }
+  },
 });
 
 function RouteComponent() {
   const { data: session, isPending, error, refetch } = authClient.useSession();
-  console.log(session);
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          console.log("lol");
-        },
-      },
-    });
+    await authClient.signOut();
+    navigate({ to: "/login" });
   };
 
   if (isPending) {
@@ -28,17 +29,6 @@ function RouteComponent() {
         <button className="bg-red-500" onClick={handleSignOut}>
           Logout
         </button>
-      )}
-
-      {!session && (
-        <div className="space-x-5 p-4">
-          <a href="/signup" className="bg-blue-500">
-            Signup
-          </a>
-          <a href="/login" className="bg-blue-500">
-            Signin
-          </a>
-        </div>
       )}
     </div>
   );

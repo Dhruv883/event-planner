@@ -2,9 +2,11 @@ import {
   BoltIcon,
   BookOpenIcon,
   Layers2Icon,
+  LogInIcon,
   LogOutIcon,
   PinIcon,
   UserPenIcon,
+  UserPlusIcon,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,12 +20,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Link } from "@tanstack/react-router";
 
 import { authClient } from "@/lib/auth-client";
 
 export default function UserMenu() {
   const { data: session } = authClient.useSession();
-  console.log(session);
+
+  if (!session) {
+    return (
+      <div className="flex items-center gap-2">
+        <Button asChild variant="ghost">
+          <Link to="/login">
+            <LogInIcon size={16} className="mr-2" />
+            Login
+          </Link>
+        </Button>
+        <Button asChild>
+          <Link to="/signup">
+            <UserPlusIcon size={16} className="mr-2" />
+            Sign Up
+          </Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <DropdownMenu>
@@ -44,10 +65,10 @@ export default function UserMenu() {
       <DropdownMenuContent className="w-48 mt-2" align="end">
         <DropdownMenuLabel className="flex min-w-0 flex-col">
           <span className="text-foreground truncate text-sm font-medium">
-            {session?.user.name}
+            {session.user.name}
           </span>
           <span className="text-muted-foreground truncate text-xs font-normal">
-            {session?.user.email}
+            {session.user.email}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

@@ -2,7 +2,7 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import { auth } from "./lib/auth";
-import { toNodeHandler } from "better-auth/node";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 
 const app = express();
 
@@ -17,10 +17,7 @@ app.use(
 
 app.all("/api/auth{/*path}", toNodeHandler(auth));
 
-
-
-app.use(express.json())
-
+app.use(express.json());
 
 app.get("/", (_req, res) => {
   res.status(200).send("OK");
