@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useRef, useState } from "react";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,20 +13,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  CalendarCheck,
-  CalendarRange,
-  Check,
-  FileText,
-  Clock,
-  Image as ImageIcon,
-  MapPin,
-  X,
-} from "lucide-react";
+import { CalendarCheck, CalendarRange, FileText, MapPin } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import CoverBanner from "@/components/create/CoverBanner";
+import CoverPicker from "@/components/create/CoverPicker";
+import ScheduleFields from "@/components/create/ScheduleFields";
 
 export const Route = createFileRoute("/create")({
   component: RouteComponent,
@@ -44,62 +36,20 @@ function RouteComponent() {
 
 type EventType = "ONE_OFF" | "WHOLE_DAY" | "MULTI_DAY";
 
-type CoverKind =
-  | { kind: "preset"; id: string; className: string }
-  | { kind: "upload"; url: string };
+type CoverUrl = string;
 
-const COVER_PRESETS: Array<{ id: string; name: string; className: string }> = [
-  {
-    id: "aurora",
-    name: "Aurora",
-    className:
-      "bg-[radial-gradient(1000px_400px_at_0%_0%,#6EE7B7_0%,transparent_60%),radial-gradient(800px_300px_at_100%_0%,#93C5FD_0%,transparent_60%),radial-gradient(1000px_400px_at_50%_100%,#FCA5A5_0%,transparent_60%)]",
-  },
-  {
-    id: "sunset",
-    name: "Sunset",
-    className: "bg-gradient-to-br from-rose-500 via-fuchsia-500 to-indigo-500",
-  },
-  {
-    id: "ocean",
-    name: "Ocean",
-    className: "bg-gradient-to-tr from-cyan-500 via-sky-500 to-blue-600",
-  },
-  {
-    id: "forest",
-    name: "Forest",
-    className: "bg-gradient-to-tr from-emerald-500 via-teal-500 to-lime-500",
-  },
-  {
-    id: "haze",
-    name: "Haze",
-    className:
-      "bg-[conic-gradient(at_0%_0%,#e879f9_0deg,#60a5fa_120deg,#34d399_240deg,#e879f9_360deg)]",
-  },
-  {
-    id: "midnight",
-    name: "Midnight",
-    className: "bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-800",
-  },
-  {
-    id: "candy",
-    name: "Candy",
-    className: "bg-gradient-to-br from-pink-400 via-amber-300 to-rose-400",
-  },
-  {
-    id: "flare",
-    name: "Flare",
-    className:
-      "bg-[radial-gradient(circle_at_20%_10%,rgba(250,204,21,0.6),transparent_40%),radial-gradient(circle_at_80%_20%,rgba(244,63,94,0.5),transparent_40%),radial-gradient(circle_at_50%_100%,rgba(59,130,246,0.5),transparent_40%)]",
-  },
+const COVER_PRESETS: string[] = [
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688707/Connect/Cover%20Images/Preset/tech_zg81ne.avif",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688707/Connect/Cover%20Images/Preset/pool_kons4c.avif",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688706/Connect/Cover%20Images/Preset/lesgo_amt02r.avif",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688706/Connect/Cover%20Images/Preset/bbq_hdpmju.avif",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688706/Connect/Cover%20Images/Preset/camp_y9ymwf.avif",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688706/Connect/Cover%20Images/Preset/hike_lk2s8k.avif",
 ];
 
 function CreateEventPage() {
-  const [cover, setCover] = useState<CoverKind>({
-    kind: "preset",
-    id: COVER_PRESETS[0].id,
-    className: COVER_PRESETS[0].className,
-  });
+  const navigate = useNavigate();
+  const [coverUrl, setCoverUrl] = useState<CoverUrl>(COVER_PRESETS[0] ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -108,21 +58,46 @@ function CreateEventPage() {
   const [endDate, setEndDate] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const selectedPresetName = useMemo(() => {
-    if (cover.kind !== "preset") return "Custom photo";
-    return (
-      COVER_PRESETS.find((preset) => preset.id === cover.id)?.name ?? "Cover"
-    );
-  }, [cover]);
+  async function uploadToCloudinary(file: File) {
+    // const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as
+    //   | string
+    //   | undefined;
+    // const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as
+    //   | string
+    //   | undefined;
+    // if (cloudName && uploadPreset) {
+    //   try {
+    //     const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    //     const form = new FormData();
+    //     form.append("file", file);
+    //     form.append("upload_preset", uploadPreset);
+    //     const res = await fetch(url, { method: "POST", body: form });
+    //     if (!res.ok) throw new Error("Upload failed");
+    //     const data = (await res.json()) as {
+    //       secure_url?: string;
+    //       url?: string;
+    //     };
+    //     return data.secure_url || data.url || "";
+    //   } catch (e) {
+    //     console.error("Cloudinary upload error", e);
+    //     // fall through to local fallback below
+    //   }
+    // }
+    // // Fallback for dev/local if Cloudinary not configured or upload failed
+    // return URL.createObjectURL(file);
+    console.log("uploaded to cloudinary");
+  }
 
-  function onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setCover({ kind: "upload", url });
+  async function onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
+    // const file = e.target.files?.[0];
+    // if (!file) return;
+    // const uploaded = await uploadToCloudinary(file);
+    // if (uploaded) setCoverUrl(uploaded);
+    console.log("file uploaded");
   }
 
   function validate(): string | null {
@@ -154,27 +129,76 @@ function CreateEventPage() {
       type,
       startDate: buildStartDateISO(type, date, startTime),
       endDate: buildEndDateISO(type, date, endDate, endTime),
-      coverImage:
-        cover.kind === "upload" ? cover.url : `preset:${(cover as any).id}`,
+      coverImage: coverUrl,
     };
 
-    console.log(payload);
+    try {
+      setSubmitting(true);
+      const base = import.meta.env.VITE_SERVER_URL;
+      const res = await fetch(`${base}/api/events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(
+          errJson?.error || `Failed to create event (${res.status})`
+        );
+      }
+      const json = (await res.json()) as { data?: { id: string } };
+      const id = json?.data?.id;
+      toast.success("Event created");
+      if (id) {
+        navigate({ to: "/manage/$eventId", params: { eventId: id } });
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Something went wrong creating the event");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function buildStartDateISO(type: EventType, date: string, startTime: string) {
+    if (!date) return null;
+    if (type === "ONE_OFF" && startTime)
+      return new Date(`${date}T${startTime}:00`).toISOString();
+    const [y, m, d] = date.split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(Date.UTC(y, m - 1, d, 0, 0, 0)).toISOString();
+  }
+
+  function buildEndDateISO(
+    type: EventType,
+    date: string,
+    endDate: string,
+    endTime: string
+  ) {
+    if (type === "ONE_OFF" && date && endTime)
+      return new Date(`${date}T${endTime}:00`).toISOString();
+    if (type === "WHOLE_DAY" && date) {
+      const [y, m, d] = date.split("-").map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(Date.UTC(y, m - 1, d, 23, 59, 59)).toISOString();
+    }
+    if (type === "MULTI_DAY" && endDate) {
+      const [y, m, d] = endDate.split("-").map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(Date.UTC(y, m - 1, d, 23, 59, 59)).toISOString();
+    }
+    return null;
   }
 
   return (
     <div className="flex flex-col">
       <div className="mx-auto w-full max-w-6xl px-6 pt-6 pb-3 flex items-center justify-between">
         <CoverPicker
-          cover={cover}
-          onPickPreset={(preset) =>
-            setCover({
-              kind: "preset",
-              id: preset.id,
-              className: preset.className,
-            })
-          }
+          coverUrl={coverUrl}
+          presets={COVER_PRESETS}
+          onPickUrl={(url) => setCoverUrl(url)}
           onPickUpload={() => fileInputRef.current?.click()}
-          selectedLabel={selectedPresetName}
         />
         <input
           ref={fileInputRef}
@@ -186,22 +210,10 @@ function CreateEventPage() {
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-6">
-        <CoverBanner cover={cover} label={selectedPresetName} />
+        <CoverBanner url={coverUrl} />
       </div>
 
-      <div className="mx-auto w-full max-w-6xl px-6 pt-4">
-        <StepsBar
-          coverDone={true}
-          detailsDone={Boolean(title.trim())}
-          scheduleDone={isScheduleComplete(
-            type,
-            date,
-            endDate,
-            startTime,
-            endTime
-          )}
-        />
-      </div>
+      <div className="mx-auto w-full max-w-6xl px-6 pt-4"></div>
 
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-6 py-6">
         <div className="flex flex-col gap-6">
@@ -297,373 +309,19 @@ function CreateEventPage() {
                   onChange={{ setDate, setEndDate, setStartTime, setEndTime }}
                 />
               </div>
-              {/* Summary bar */}
-              <div className="mt-3 flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2 text-xs">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Clock className="size-4" />
-                  <span>
-                    {scheduleSummaryText(
-                      type,
-                      date,
-                      endDate,
-                      startTime,
-                      endTime
-                    )}
-                  </span>
-                </div>
-                <div className="text-[11px] text-muted-foreground">
-                  Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
-                </div>
-              </div>
             </CardContent>
           </Card>
 
           <div className="flex justify-end">
-            <Button onClick={handleCreate} className="px-6">
-              Create event
+            <Button
+              onClick={handleCreate}
+              className="px-6"
+              disabled={submitting}
+            >
+              {submitting ? "Creating..." : "Create event"}
             </Button>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function buildStartDateISO(type: EventType, date: string, startTime: string) {
-  if (!date) return null;
-  if (type === "ONE_OFF" && startTime)
-    return new Date(`${date}T${startTime}:00`).toISOString();
-  return new Date(`${date}T00:00:00`).toISOString();
-}
-
-function buildEndDateISO(
-  type: EventType,
-  date: string,
-  endDate: string,
-  endTime: string
-) {
-  if (type === "ONE_OFF" && date && endTime)
-    return new Date(`${date}T${endTime}:00`).toISOString();
-  if (type === "WHOLE_DAY" && date)
-    return new Date(`${date}T23:59:59`).toISOString();
-  if (type === "MULTI_DAY" && endDate)
-    return new Date(`${endDate}T23:59:59`).toISOString();
-  return null;
-}
-
-// Simple completion check for steps bar
-function isScheduleComplete(
-  type: EventType,
-  date: string,
-  endDate: string,
-  startTime: string,
-  endTime: string
-) {
-  if (!date) return false;
-  if (type === "ONE_OFF")
-    return Boolean(startTime && endTime && startTime < endTime);
-  if (type === "MULTI_DAY") return Boolean(endDate && endDate >= date);
-  return true; // WHOLE_DAY with date
-}
-
-function scheduleSummaryText(
-  type: EventType,
-  date: string,
-  endDate: string,
-  startTime: string,
-  endTime: string
-) {
-  if (!date) return "Pick a date";
-  const prettyDate = formatISODate(date);
-  if (type === "ONE_OFF") {
-    if (!startTime || !endTime) return `${prettyDate} • Set time`;
-    return `${prettyDate} • ${startTime}–${endTime}`;
-  }
-  if (type === "WHOLE_DAY") return `${prettyDate} • All day`;
-  // MULTI_DAY
-  if (!endDate) return `${prettyDate} → ?`;
-  return `${prettyDate} → ${formatISODate(endDate)}`;
-}
-
-function formatISODate(dateStr: string) {
-  try {
-    const dt = new Date(`${dateStr}T00:00:00`);
-    return dt.toLocaleDateString(undefined, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
-function StepsBar({
-  coverDone,
-  detailsDone,
-  scheduleDone,
-}: {
-  coverDone: boolean;
-  detailsDone: boolean;
-  scheduleDone: boolean;
-}) {
-  const Step = ({
-    done,
-    label,
-    icon,
-  }: {
-    done: boolean;
-    label: string;
-    icon: React.ReactNode;
-  }) => (
-    <div className="flex items-center gap-2">
-      <div
-        className={cn(
-          "grid size-7 place-items-center rounded-full border",
-          done
-            ? "bg-primary text-primary-foreground border-primary"
-            : "bg-muted text-foreground"
-        )}
-      >
-        {done ? <Check className="size-4" /> : icon}
-      </div>
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-  return (
-    <div className="flex items-center gap-4 overflow-x-auto rounded-md border bg-muted/30 px-3 py-2">
-      <Step
-        done={coverDone}
-        label="Cover"
-        icon={<ImageIcon className="size-4" />}
-      />
-      <div className="text-muted-foreground/50">—</div>
-      <Step
-        done={detailsDone}
-        label="Details"
-        icon={<FileText className="size-4" />}
-      />
-      <div className="text-muted-foreground/50">—</div>
-      <Step
-        done={scheduleDone}
-        label="Schedule"
-        icon={<CalendarCheck className="size-4" />}
-      />
-    </div>
-  );
-}
-
-function ScheduleFields({
-  type,
-  date,
-  endDate,
-  startTime,
-  endTime,
-  onChange,
-}: {
-  type: EventType;
-  date: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  onChange: {
-    setDate: (v: string) => void;
-    setEndDate: (v: string) => void;
-    setStartTime: (v: string) => void;
-    setEndTime: (v: string) => void;
-  };
-}) {
-  return (
-    <div className="grid gap-4">
-      {type === "ONE_OFF" && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Field label="Date">
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => onChange.setDate(e.target.value)}
-            />
-          </Field>
-          <Field label="Start time">
-            <Input
-              type="time"
-              value={startTime}
-              onChange={(e) => onChange.setStartTime(e.target.value)}
-            />
-          </Field>
-          <Field label="End time">
-            <Input
-              type="time"
-              value={endTime}
-              onChange={(e) => onChange.setEndTime(e.target.value)}
-            />
-          </Field>
-        </div>
-      )}
-
-      {type === "WHOLE_DAY" && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="Date">
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => onChange.setDate(e.target.value)}
-            />
-          </Field>
-          <div className="flex items-end text-sm text-muted-foreground">
-            This event spans the entire day
-          </div>
-        </div>
-      )}
-
-      {type === "MULTI_DAY" && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="Start date">
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => onChange.setDate(e.target.value)}
-            />
-          </Field>
-          <Field label="End date">
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => onChange.setEndDate(e.target.value)}
-            />
-          </Field>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid gap-2">
-      <Label>{label}</Label>
-      {children}
-    </div>
-  );
-}
-
-function CoverPicker({
-  cover,
-  onPickPreset,
-  onPickUpload,
-  selectedLabel,
-}: {
-  cover: CoverKind;
-  onPickPreset: (preset: { id: string; className: string }) => void;
-  onPickUpload: () => void;
-  selectedLabel: string;
-}) {
-  return (
-    <DialogPrimitive.Root>
-      <DialogPrimitive.Trigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <ImageIcon className="size-4" /> Change cover
-        </Button>
-      </DialogPrimitive.Trigger>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[95vw] max-w-4xl max-h-[85vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border bg-background shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-          <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b px-4 py-3">
-              <DialogPrimitive.Title className="text-foreground text-sm font-semibold">
-                Choose Image
-              </DialogPrimitive.Title>
-              <DialogPrimitive.Close className="rounded-xs p-1 opacity-70 transition-opacity hover:opacity-100">
-                <X className="size-4" />
-                <span className="sr-only">Close</span>
-              </DialogPrimitive.Close>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={onPickUpload}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") onPickUpload();
-                }}
-                className="rounded-md border border-dashed bg-muted/30 px-4 py-6 text-center"
-              >
-                <div className="text-sm font-medium">
-                  Drag & drop or click here to upload.
-                </div>
-                <div className="text-muted-foreground mt-1 text-xs">
-                  Or choose an image below. The ideal aspect ratio is 1:1.
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <Input
-                  placeholder="Search for more photos"
-                  className="w-full"
-                />
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                {COVER_PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => onPickPreset(p)}
-                    className={cn(
-                      "relative aspect-[16/10] w-full overflow-hidden rounded-md border",
-                      cover.kind === "preset" && (cover as any).id === p.id
-                        ? "ring-2 ring-primary"
-                        : ""
-                    )}
-                    aria-label={`Choose ${p.name}`}
-                  >
-                    <div className={cn("absolute inset-0", p.className)} />
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-2 text-left text-xs font-medium text-white">
-                      {p.name}
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-4 text-xs text-muted-foreground">
-                Selected: {selectedLabel}
-              </div>
-            </div>
-          </div>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
-  );
-}
-
-function CoverBanner({ cover, label }: { cover: CoverKind; label: string }) {
-  const bgStyle =
-    cover.kind === "upload"
-      ? {
-          backgroundImage: `url(${cover.url})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }
-      : undefined;
-  return (
-    <div className="relative w-full overflow-hidden rounded-xl border">
-      <div
-        className={cn(
-          "aspect-[16/5] w-full",
-          cover.kind === "preset" ? cover.className : "bg-black"
-        )}
-        style={bgStyle}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-      <div className="absolute bottom-2 right-2 rounded-md bg-background/80 px-2 py-1 text-xs shadow-sm ring-1 ring-border">
-        Cover: {label}
       </div>
     </div>
   );
