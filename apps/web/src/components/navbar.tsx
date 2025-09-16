@@ -1,7 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import NotificationMenu from "./notification-menu";
 import UserMenu from "./user-menu";
 
 export default function Navbar() {
@@ -32,7 +29,7 @@ export default function Navbar() {
                 </Link>
               ))}
             </div>
-            <NotificationMenu />
+            {/* <NotificationMenu /> */}
             <UserMenu />
           </div>
         </div>

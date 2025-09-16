@@ -1,4 +1,3 @@
-import React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

@@ -16,9 +16,9 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CalendarCheck, CalendarRange, FileText, MapPin } from "lucide-react";
 import { toast } from "sonner";
-import CoverBanner from "@/components/create/CoverBanner";
-import CoverPicker from "@/components/create/CoverPicker";
-import ScheduleFields from "@/components/create/ScheduleFields";
+import CoverBanner from "@/components/create/cover-banner";
+import CoverPicker from "@/components/create/cover-picker";
+import ScheduleFields from "@/components/create/schedule-fields";
 
 export const Route = createFileRoute("/create")({
   component: RouteComponent,
@@ -62,41 +62,7 @@ function CreateEventPage() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  async function uploadToCloudinary(file: File) {
-    // const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as
-    //   | string
-    //   | undefined;
-    // const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as
-    //   | string
-    //   | undefined;
-    // if (cloudName && uploadPreset) {
-    //   try {
-    //     const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-    //     const form = new FormData();
-    //     form.append("file", file);
-    //     form.append("upload_preset", uploadPreset);
-    //     const res = await fetch(url, { method: "POST", body: form });
-    //     if (!res.ok) throw new Error("Upload failed");
-    //     const data = (await res.json()) as {
-    //       secure_url?: string;
-    //       url?: string;
-    //     };
-    //     return data.secure_url || data.url || "";
-    //   } catch (e) {
-    //     console.error("Cloudinary upload error", e);
-    //     // fall through to local fallback below
-    //   }
-    // }
-    // // Fallback for dev/local if Cloudinary not configured or upload failed
-    // return URL.createObjectURL(file);
-    console.log("uploaded to cloudinary");
-  }
-
   async function onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-    // const file = e.target.files?.[0];
-    // if (!file) return;
-    // const uploaded = await uploadToCloudinary(file);
-    // if (uploaded) setCoverUrl(uploaded);
     console.log("file uploaded");
   }
 

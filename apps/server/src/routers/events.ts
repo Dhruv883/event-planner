@@ -1,12 +1,10 @@
 import express from "express";
 import prisma from "../../prisma";
 import { z } from "zod";
-import { auth } from "../lib/auth";
-import { fromNodeHeaders } from "better-auth/node";
+import { requireAuth } from "../middleware/auth";
 
 const router = express.Router();
 
-// Validation schema for creating an event
 const createEventSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional().nullable(),
@@ -17,16 +15,8 @@ const createEventSchema = z.object({
   coverImage: z.string().url(),
 });
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers as Record<string, string>),
-    });
-
-    if (!session?.user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
     const validation = createEventSchema.safeParse(req.body);
     if (!validation.success) {
       return res
@@ -97,7 +87,7 @@ router.post("/", async (req, res) => {
           startDate: startAt,
           endDate: endAt,
           coverImage: coverImage,
-          hostId: session.user.id,
+          hostId: req.user.id,
         },
         select: {
           id: true,
@@ -109,7 +99,6 @@ router.post("/", async (req, res) => {
         },
       });
 
-      // Create Day rows only for WHOLE_DAY and MULTI_DAY
       if (type === "WHOLE_DAY") {
         await tx.day.createMany({
           data: [
@@ -136,6 +125,42 @@ router.post("/", async (req, res) => {
     return res.status(201).json({ data: createdEvent });
   } catch (err) {
     console.error("Create event error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/", requireAuth, async (req, res) => {
+  try {
+    const events = await prisma.event.findMany({
+      where: {
+        hostId: req.user.id,
+      },
+    });
+    return res.status(200).json({ data: events });
+  } catch (error) {
+    console.error("Get events error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id", requireAuth, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const event = await prisma.event.findUnique({
+      where: { id },
+    });
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    if (event.hostId !== req.user.id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    return res.status(200).json({ data: event });
+  } catch (error) {
+    console.error("Get event by id error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
