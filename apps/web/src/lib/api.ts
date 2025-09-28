@@ -1,56 +1,62 @@
-const baseURL = import.meta.env.VITE_SERVER_URL;
+import axios, { type AxiosRequestConfig } from "axios";
+import type { CreateEventPayload, EventData } from "./types";
 
-interface Event {
-  id: string;
-  title: string;
-  description: string | null;
-  coverImage: string;
-  type: "ONE_OFF" | "WHOLE_DAY" | "MULTI_DAY";
-  status: "PLANNING" | "UPCOMING" | "LIVE" | "COMPLETED" | "CANCELLED";
-  startDate: string;
-  endDate: string | null;
-  location: string | null;
-  createdAt: string;
-  updatedAt: string;
-  hostId: string;
-}
+/**
+ * API configuration
+ */
+const config = {
+  baseURL: import.meta.env.VITE_SERVER_URL,
+  withCredentials: true,
+};
 
+/**
+ * Standard API response wrapper
+ */
 interface ApiResponse<T> {
   data: T;
 }
 
-interface ApiError {
-  error: string;
-  details?: any;
+/**
+ * Custom API error class for better error handling
+ */
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public details?: any
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
 }
 
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: AxiosRequestConfig = {}
 ): Promise<T> {
-  const url = `${baseURL}${endpoint}`;
+  const url = `${config.baseURL}${endpoint}`;
 
-  const response = await fetch(url, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  try {
+    const response = await axios({
+      url,
+      method: options.method || "GET",
+      data: options.data,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      withCredentials: true,
+      ...options,
+    });
 
-  if (!response.ok) {
-    let errorMessage = `HTTP ${response.status}`;
-    try {
-      const errorData: ApiError = await response.json();
-      errorMessage = errorData.error || errorMessage;
-    } catch {
-      errorMessage = response.statusText || errorMessage;
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.error || error.message;
+      throw new Error(errorMessage);
     }
-    throw new Error(errorMessage);
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function fetchEvents(): Promise<Event[]> {
@@ -65,4 +71,15 @@ export async function fetchEvent(eventId: string): Promise<Event> {
   return response.data;
 }
 
-export type { Event };
+export async function createEvent(
+  payload: CreateEventPayload
+): Promise<string> {
+  const response = await apiRequest<ApiResponse<{ id: string }>>(
+    "/api/events",
+    {
+      method: "POST",
+      data: payload,
+    }
+  );
+  return response.data.id;
+}

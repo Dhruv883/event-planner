@@ -19,7 +19,7 @@ export function CoverPicker({
     <DialogPrimitive.Root>
       <DialogPrimitive.Trigger asChild>
         <Button variant="outline" size="sm" className="gap-1.5">
-          <ImageIcon className="size-4" /> Change cover
+          <ImageIcon className="size-4" /> Change Cover Image
         </Button>
       </DialogPrimitive.Trigger>
       <DialogPrimitive.Portal>
@@ -47,18 +47,15 @@ export function CoverPicker({
                 className="rounded-md border border-dashed bg-muted/30 px-4 py-6 text-center"
               >
                 <div className="text-sm font-medium">
-                  Drag & drop or click here to upload.
+                  Drag & Drop or Click here to Upload.
                 </div>
                 <div className="text-muted-foreground mt-1 text-xs">
-                  Or choose an image below. The ideal aspect ratio is 1:1.
+                  Or choose an image below. The ideal aspect ratio is 2:1.
                 </div>
               </div>
 
               <div className="mt-4">
-                <Input
-                  placeholder="Search for more photos"
-                  className="w-full"
-                />
+                <Input placeholder="Search Images" className="w-full" />
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -68,7 +65,7 @@ export function CoverPicker({
                     type="button"
                     onClick={() => onPickUrl(url)}
                     className={cn(
-                      "relative aspect-[16/10] w-full overflow-hidden rounded-md border",
+                      "relative aspect-[8/5] w-full overflow-hidden rounded-md border",
                       coverUrl === url ? "ring-2 ring-primary" : ""
                     )}
                     aria-label={`Choose cover image`}

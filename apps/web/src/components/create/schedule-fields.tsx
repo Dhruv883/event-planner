@@ -4,6 +4,21 @@ import { Label } from "@/components/ui/label";
 
 export type EventType = "ONE_OFF" | "WHOLE_DAY" | "MULTI_DAY";
 
+const Field = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="grid gap-2">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+};
+
 export function ScheduleFields({
   type,
   date,
@@ -85,21 +100,6 @@ export function ScheduleFields({
           </Field>
         </div>
       )}
-    </div>
-  );
-}
-
-export function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid gap-2">
-      <Label>{label}</Label>
-      {children}
     </div>
   );
 }

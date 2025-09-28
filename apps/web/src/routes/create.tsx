@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
+import { createEvent } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ import { toast } from "sonner";
 import CoverBanner from "@/components/create/cover-banner";
 import CoverPicker from "@/components/create/cover-picker";
 import ScheduleFields from "@/components/create/schedule-fields";
+import type { CreateEventPayload } from "@/lib/types";
 
 export const Route = createFileRoute("/create")({
   component: RouteComponent,
@@ -36,8 +38,6 @@ function RouteComponent() {
 
 type EventType = "ONE_OFF" | "WHOLE_DAY" | "MULTI_DAY";
 
-type CoverUrl = string;
-
 const COVER_PRESETS: string[] = [
   "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688707/Connect/Cover%20Images/Preset/tech_zg81ne.avif",
   "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688707/Connect/Cover%20Images/Preset/pool_kons4c.avif",
@@ -49,7 +49,7 @@ const COVER_PRESETS: string[] = [
 
 function CreateEventPage() {
   const navigate = useNavigate();
-  const [coverUrl, setCoverUrl] = useState<CoverUrl>(COVER_PRESETS[0] ?? "");
+  const [coverUrl, setCoverUrl] = useState<string>(COVER_PRESETS[0]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -62,33 +62,94 @@ function CreateEventPage() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  async function onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-    console.log("file uploaded");
-  }
+  // async function onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
+  //   console.log("file uploaded");
+  // }
 
   function validate(): string | null {
-    if (!title.trim()) return "Title is required";
-    if (!date)
+    if (!title) {
+      return "Title is required";
+    }
+
+    if (!date) {
       return type === "MULTI_DAY"
         ? "Start date is required"
         : "Date is required";
-    if (type === "MULTI_DAY" && endDate && endDate < date)
-      return "End date must be after start date";
+    }
+
+    if (type === "MULTI_DAY") {
+      if (endDate && endDate < date) {
+        return "End date must be after start date";
+      }
+    }
+
     if (type === "ONE_OFF") {
-      if (!startTime || !endTime) return "Start and end time are required";
+      if (!startTime) return "Start time is required";
+      if (!endTime) return "End time is required";
       if (startTime >= endTime) return "End time must be after start time";
     }
+
+    return null;
+  }
+
+  function buildStartDateISO(
+    type: EventType,
+    date: string,
+    startTime: string
+  ): string | null {
+    if (!date) {
+      return null;
+    }
+
+    if (type === "ONE_OFF" && startTime) {
+      return new Date(`${date}T${startTime}:00`).toISOString();
+    }
+
+    const [year, month, day] = date.split("-").map(Number);
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    return new Date(Date.UTC(year, month - 1, day, 0, 0, 0)).toISOString();
+  }
+
+  function buildEndDateISO(
+    type: EventType,
+    date: string,
+    endDate: string,
+    endTime: string
+  ): string | null {
+    if (type === "ONE_OFF" && date && endTime) {
+      return new Date(`${date}T${endTime}:00`).toISOString();
+    }
+
+    if (type === "WHOLE_DAY" && date) {
+      const [year, month, day] = date.split("-").map(Number);
+      if (!year || !month || !day) {
+        return null;
+      }
+      return new Date(Date.UTC(year, month - 1, day, 23, 59, 59)).toISOString();
+    }
+
+    if (type === "MULTI_DAY" && endDate) {
+      const [year, month, day] = endDate.split("-").map(Number);
+      if (!year || !month || !day) {
+        return null;
+      }
+      return new Date(Date.UTC(year, month - 1, day, 23, 59, 59)).toISOString();
+    }
+
     return null;
   }
 
   async function handleCreate() {
-    const err = validate();
-    if (err) {
-      toast.error(err);
+    const validationError = validate();
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
-    const payload = {
+    const eventPayload: CreateEventPayload = {
       title,
       description,
       location,
@@ -100,61 +161,18 @@ function CreateEventPage() {
 
     try {
       setSubmitting(true);
-      const base = import.meta.env.VITE_SERVER_URL;
-      const res = await fetch(`${base}/api/events`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(
-          errJson?.error || `Failed to create event (${res.status})`
-        );
-      }
-      const json = (await res.json()) as { data?: { id: string } };
-      const id = json?.data?.id;
-      toast.success("Event created");
-      if (id) {
-        navigate({ to: "/manage/$eventId", params: { eventId: id } });
-      }
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e?.message || "Something went wrong creating the event");
+
+      const eventId = await createEvent(eventPayload);
+      toast.success("Event created successfully!");
+
+      navigate({ to: "/manage/$eventId", params: { eventId } });
+    } catch (error: any) {
+      const errorMessage =
+        error?.message || "Failed to create event. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function buildStartDateISO(type: EventType, date: string, startTime: string) {
-    if (!date) return null;
-    if (type === "ONE_OFF" && startTime)
-      return new Date(`${date}T${startTime}:00`).toISOString();
-    const [y, m, d] = date.split("-").map(Number);
-    if (!y || !m || !d) return null;
-    return new Date(Date.UTC(y, m - 1, d, 0, 0, 0)).toISOString();
-  }
-
-  function buildEndDateISO(
-    type: EventType,
-    date: string,
-    endDate: string,
-    endTime: string
-  ) {
-    if (type === "ONE_OFF" && date && endTime)
-      return new Date(`${date}T${endTime}:00`).toISOString();
-    if (type === "WHOLE_DAY" && date) {
-      const [y, m, d] = date.split("-").map(Number);
-      if (!y || !m || !d) return null;
-      return new Date(Date.UTC(y, m - 1, d, 23, 59, 59)).toISOString();
-    }
-    if (type === "MULTI_DAY" && endDate) {
-      const [y, m, d] = endDate.split("-").map(Number);
-      if (!y || !m || !d) return null;
-      return new Date(Date.UTC(y, m - 1, d, 23, 59, 59)).toISOString();
-    }
-    return null;
   }
 
   return (
@@ -166,13 +184,13 @@ function CreateEventPage() {
           onPickUrl={(url) => setCoverUrl(url)}
           onPickUpload={() => fileInputRef.current?.click()}
         />
-        <input
+        {/* <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
           className="hidden"
           onChange={onUploadFile}
-        />
+        /> */}
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-6">
@@ -248,20 +266,20 @@ function CreateEventPage() {
                   onValueChange={(val) => val && setType(val as EventType)}
                   className="inline-flex gap-1 rounded-md border p-1"
                 >
-                  <ToggleGroupItem value="ONE_OFF" aria-label="One-off">
-                    <CalendarCheck className="mr-2 size-4" /> One‑off
+                  <ToggleGroupItem value="ONE_OFF" aria-label="One-Off">
+                    <CalendarCheck className="mr-2 size-4" /> One-Off
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="WHOLE_DAY" aria-label="Whole day">
+                  <ToggleGroupItem value="WHOLE_DAY" aria-label="Whole-Day">
                     <CalendarCheck className="mr-2 size-4 opacity-70" /> Whole
-                    day
+                    Day
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="MULTI_DAY" aria-label="Multi-day">
-                    <CalendarRange className="mr-2 size-4" /> Multi‑day
+                  <ToggleGroupItem value="MULTI_DAY" aria-label="Multi-Day">
+                    <CalendarRange className="mr-2 size-4" /> Multi‑Day
                   </ToggleGroupItem>
                 </ToggleGroup>
               </CardAction>
               <CardDescription>
-                Pick dates and times based on type
+                Pick Dates and Times based on Event Type
               </CardDescription>
             </CardHeader>
             <CardContent>
