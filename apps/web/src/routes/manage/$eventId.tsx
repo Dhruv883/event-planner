@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
-import { fetchEvent, type Event } from "@/lib/api";
+import { fetchEvent } from "@/lib/api";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import { PollsSection } from "../../components/manage/polls";
 import { InvitesSection } from "../../components/manage/invite-tab";
 import { CohostsSection } from "../../components/manage/cohosts-tab";
 import { QuickActions } from "../../components/manage/quick-actions";
+import type { EventData } from "@/lib/types";
 
 export const Route = createFileRoute("/manage/$eventId")({
   component: RouteComponent,
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/manage/$eventId")({
 
 function RouteComponent() {
   const { eventId } = Route.useParams();
-  const [event, setEvent] = useState<Event | null>(null);
+  const [event, setEvent] = useState<EventData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -243,7 +244,7 @@ function RouteComponent() {
 
 type TabKey = "overview" | "polls" | "invites" | "cohosts" | "schedule";
 
-function Tabs({ event }: { event: Event }) {
+function Tabs({ event }: { event: EventData }) {
   const [active, setActive] = useState<TabKey>("overview");
   const showSchedule = event.type === "WHOLE_DAY" || event.type === "MULTI_DAY";
   return (

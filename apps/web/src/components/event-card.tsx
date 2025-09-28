@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { MapPin, Users, Clock, ArrowUpRight, Sparkles } from "lucide-react";
-import { type Event } from "@/lib/api";
+import { type EventData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface EventCardProps {
-  event: Event;
+  event: EventData;
 }
 
 export function EventCard({ event }: EventCardProps) {
@@ -140,7 +140,7 @@ export function EventCard({ event }: EventCardProps) {
   );
 }
 
-function themeByStatus(status: Event["status"]) {
+function themeByStatus(status: EventData["status"]) {
   // Dark-friendly tints that subtly color the card
   switch (status) {
     case "UPCOMING":

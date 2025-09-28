@@ -1,5 +1,5 @@
 import { authClient } from "@/lib/auth-client";
-import { fetchEvents, type Event } from "@/lib/api";
+import { fetchEvents } from "@/lib/api";
 import {
   createFileRoute,
   redirect,
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarDays, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EventCard } from "@/components/event-card";
+import type { EventData } from "@/lib/types";
 
 export const Route = createFileRoute("/events")({
   component: RouteComponent,
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/events")({
 function RouteComponent() {
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const navigate = useNavigate();
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

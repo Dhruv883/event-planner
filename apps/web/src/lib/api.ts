@@ -59,13 +59,13 @@ async function apiRequest<T>(
   }
 }
 
-export async function fetchEvents(): Promise<Event[]> {
-  const response = await apiRequest<ApiResponse<Event[]>>("/api/events");
+export async function fetchEvents(): Promise<EventData[]> {
+  const response = await apiRequest<ApiResponse<EventData[]>>("/api/events");
   return response.data;
 }
 
-export async function fetchEvent(eventId: string): Promise<Event> {
-  const response = await apiRequest<ApiResponse<Event>>(
+export async function fetchEvent(eventId: string): Promise<EventData> {
+  const response = await apiRequest<ApiResponse<EventData>>(
     `/api/events/${encodeURIComponent(eventId)}`
   );
   return response.data;

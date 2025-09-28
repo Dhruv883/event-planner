@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Clock, MapPin, Plus } from 'lucide-react';
-import type { Event } from '@/lib/api';
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Clock, MapPin, Plus } from "lucide-react";
+import type { EventData } from "@/lib/types";
 
 export type ActivityDraft = {
   title: string;
@@ -14,8 +14,8 @@ export type ActivityDraft = {
   description?: string;
 };
 
-export function ScheduleSection({ event }: { event: Event }) {
-  const isMulti = event.type === 'MULTI_DAY';
+export function ScheduleSection({ event }: { event: EventData }) {
+  const isMulti = event.type === "MULTI_DAY";
   const start = new Date(event.startDate);
   const end = event.endDate ? new Date(event.endDate) : null;
 
@@ -34,31 +34,33 @@ export function ScheduleSection({ event }: { event: Event }) {
   };
 
   const days: Date[] = (() => {
-    if (event.type === 'WHOLE_DAY') return [start];
+    if (event.type === "WHOLE_DAY") return [start];
     if (isMulti && end) return enumerateDaysInclusiveUTC(start, end);
     return [start];
   })();
 
   const keyFor = (d: Date) => d.toISOString().slice(0, 10);
-  const [activitiesByDay, setActivitiesByDay] = useState<Record<string, ActivityDraft[]>>({});
+  const [activitiesByDay, setActivitiesByDay] = useState<
+    Record<string, ActivityDraft[]>
+  >({});
   const [drafts, setDrafts] = useState<Record<string, ActivityDraft>>({});
 
   const addActivity = (dayKey: string) => {
-    const d = drafts[dayKey] || { title: '' };
-    const title = (d.title || '').trim();
+    const d = drafts[dayKey] || { title: "" };
+    const title = (d.title || "").trim();
     if (!title) return;
-    setActivitiesByDay(prev => ({
+    setActivitiesByDay((prev) => ({
       ...prev,
       [dayKey]: [...(prev[dayKey] || []), { ...d }],
     }));
-    setDrafts(prev => ({
+    setDrafts((prev) => ({
       ...prev,
-      [dayKey]: { title: '', time: '', location: '', description: '' },
+      [dayKey]: { title: "", time: "", location: "", description: "" },
     }));
   };
 
   const removeActivity = (dayKey: string, idx: number) => {
-    setActivitiesByDay(prev => ({
+    setActivitiesByDay((prev) => ({
       ...prev,
       [dayKey]: (prev[dayKey] || []).filter((_, i) => i !== idx),
     }));
@@ -66,19 +68,21 @@ export function ScheduleSection({ event }: { event: Event }) {
 
   return (
     <div className="space-y-4">
-      {days.map(d => {
+      {days.map((d) => {
         const key = keyFor(d);
         const label = d.toLocaleDateString(undefined, {
-          weekday: 'short',
-          day: '2-digit',
-          month: 'short',
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
         });
         const items = activitiesByDay[key] || [];
         return (
           <Card key={key} className="p-4">
             <div className="flex items-center justify-between">
               <h3 className="font-medium">{label}</h3>
-              <span className="text-xs text-zinc-500">{items.length} activities</span>
+              <span className="text-xs text-zinc-500">
+                {items.length} activities
+              </span>
             </div>
             <ul className="mt-3 space-y-2">
               {items.map((act, i) => (
@@ -104,7 +108,11 @@ export function ScheduleSection({ event }: { event: Event }) {
                         </p>
                       )}
                     </div>
-                    <Button size="sm" variant="ghost" onClick={() => removeActivity(key, i)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeActivity(key, i)}
+                    >
                       Remove
                     </Button>
                   </div>
@@ -120,9 +128,9 @@ export function ScheduleSection({ event }: { event: Event }) {
                 <Input
                   id={`title-${key}`}
                   placeholder="e.g., Lunch at 1pm"
-                  value={drafts[key]?.title ?? ''}
-                  onChange={e =>
-                    setDrafts(prev => ({
+                  value={drafts[key]?.title ?? ""}
+                  onChange={(e) =>
+                    setDrafts((prev) => ({
                       ...prev,
                       [key]: { ...(prev[key] || {}), title: e.target.value },
                     }))
@@ -135,9 +143,9 @@ export function ScheduleSection({ event }: { event: Event }) {
                   id={`time-${key}`}
                   type="time"
                   placeholder="14:00"
-                  value={drafts[key]?.time ?? ''}
-                  onChange={e =>
-                    setDrafts(prev => ({
+                  value={drafts[key]?.time ?? ""}
+                  onChange={(e) =>
+                    setDrafts((prev) => ({
                       ...prev,
                       [key]: { ...(prev[key] || {}), time: e.target.value },
                     }))
@@ -149,9 +157,9 @@ export function ScheduleSection({ event }: { event: Event }) {
                 <Input
                   id={`loc-${key}`}
                   placeholder="Venue or address"
-                  value={drafts[key]?.location ?? ''}
-                  onChange={e =>
-                    setDrafts(prev => ({
+                  value={drafts[key]?.location ?? ""}
+                  onChange={(e) =>
+                    setDrafts((prev) => ({
                       ...prev,
                       [key]: { ...(prev[key] || {}), location: e.target.value },
                     }))
@@ -163,11 +171,14 @@ export function ScheduleSection({ event }: { event: Event }) {
                 <Textarea
                   id={`desc-${key}`}
                   placeholder="Details or notes"
-                  value={drafts[key]?.description ?? ''}
-                  onChange={e =>
-                    setDrafts(prev => ({
+                  value={drafts[key]?.description ?? ""}
+                  onChange={(e) =>
+                    setDrafts((prev) => ({
                       ...prev,
-                      [key]: { ...(prev[key] || {}), description: e.target.value },
+                      [key]: {
+                        ...(prev[key] || {}),
+                        description: e.target.value,
+                      },
                     }))
                   }
                 />
