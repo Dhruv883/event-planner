@@ -45,6 +45,9 @@ const COVER_PRESETS: string[] = [
   "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688706/Connect/Cover%20Images/Preset/bbq_hdpmju.avif",
   "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688706/Connect/Cover%20Images/Preset/camp_y9ymwf.avif",
   "https://res.cloudinary.com/do2a6xog2/image/upload/v1757688706/Connect/Cover%20Images/Preset/hike_lk2s8k.avif",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1759393133/Connect/Cover%20Images/Preset/Porsche_anime_wallpaper___Ghibli_Art_odpju7.jpg",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1759393133/Connect/Cover%20Images/Preset/download_j1sbf5.jpg",
+  "https://res.cloudinary.com/do2a6xog2/image/upload/v1759393133/Connect/Cover%20Images/Preset/Mercedes-Benz_G63_fjan1x.jpg",
 ];
 
 function CreateEventPage() {
