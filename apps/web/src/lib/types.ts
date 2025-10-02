@@ -1,3 +1,18 @@
+export interface EventDay {
+  id: string;
+  date: string;
+  activities: Activity[];
+}
+
+export interface Activity {
+  id: string;
+  title: string;
+  description: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  location: string | null;
+}
+
 export interface EventData {
   id: string;
   title: string;
@@ -11,6 +26,7 @@ export interface EventData {
   createdAt: string;
   updatedAt: string;
   hostId: string;
+  days?: EventDay[];
 }
 
 export interface CreateEventPayload {
@@ -21,4 +37,13 @@ export interface CreateEventPayload {
   startDate: string | null;
   endDate: string | null;
   coverImage: string;
+}
+
+export interface CreateActivityPayload {
+  dayId: string;
+  title: string;
+  startTime: string;
+  endTime?: string | null;
+  location?: string | null;
+  description?: string | null;
 }

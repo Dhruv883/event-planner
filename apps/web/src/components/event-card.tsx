@@ -74,7 +74,7 @@ export function EventCard({ event }: EventCardProps) {
               {event.title}
             </h3>
 
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-zinc-300">
+            <div className="mt-2 flex flex-col flex-wrap gap-3 text-sm text-zinc-300">
               <div className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
                 {event.type === "ONE_OFF" && (
@@ -101,6 +101,7 @@ export function EventCard({ event }: EventCardProps) {
                   </>
                 )}
               </div>
+
               {event.location && (
                 <div className="flex items-center gap-1.5 min-w-0">
                   <MapPin className="h-4 w-4" />

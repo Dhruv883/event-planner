@@ -1,33 +1,17 @@
 import axios, { type AxiosRequestConfig } from "axios";
-import type { CreateEventPayload, EventData } from "./types";
+import type {
+  CreateActivityPayload,
+  CreateEventPayload,
+  EventData,
+} from "./types";
 
-/**
- * API configuration
- */
 const config = {
   baseURL: import.meta.env.VITE_SERVER_URL,
   withCredentials: true,
 };
 
-/**
- * Standard API response wrapper
- */
 interface ApiResponse<T> {
   data: T;
-}
-
-/**
- * Custom API error class for better error handling
- */
-class ApiError extends Error {
-  constructor(
-    message: string,
-    public status?: number,
-    public details?: any
-  ) {
-    super(message);
-    this.name = "ApiError";
-  }
 }
 
 async function apiRequest<T>(
@@ -82,4 +66,24 @@ export async function createEvent(
     }
   );
   return response.data.id;
+}
+
+export async function createActivity(
+  eventId: string,
+  payload: CreateActivityPayload
+) {
+  const response = await apiRequest<ApiResponse<any>>(
+    `/api/events/${encodeURIComponent(eventId)}/activities`,
+    { method: "POST", data: payload }
+  );
+  return response.data;
+}
+
+export async function deleteActivity(eventId: string, activityId: string) {
+  await apiRequest<null>(
+    `/api/events/${encodeURIComponent(eventId)}/activities/${encodeURIComponent(
+      activityId
+    )}`,
+    { method: "DELETE" }
+  );
 }

@@ -10,7 +10,7 @@ const app = express();
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "",
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -20,7 +20,6 @@ app.all("/api/auth{/*path}", toNodeHandler(auth));
 
 app.use(express.json());
 
-// API routes
 app.use("/api/events", eventsRouter);
 
 const port = process.env.PORT || 3000;
