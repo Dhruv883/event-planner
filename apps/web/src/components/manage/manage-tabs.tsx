@@ -7,17 +7,16 @@ import {
   CalendarRange,
   ListChecks,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewSection } from "./overview-tab";
-import { ScheduleSection } from "./schedule-section";
+import { ScheduleSection } from "./schedule/schedule-section";
 import { PollsSection } from "./polls";
 import { InvitesSection } from "./invite-tab";
 import { CohostsSection } from "./cohosts-tab";
 import type { EventData } from "@/lib/types";
+import { authClient } from "@/lib/auth-client";
 
-// Keys are aligned with underlying section components
 export type ManageTabKey =
   | "overview"
   | "schedule"
@@ -36,6 +35,9 @@ export function ManageTabs({
 }: ManageTabsProps) {
   const [tab, setTab] = useState<ManageTabKey>(initialTab);
   const showSchedule = event.type === "WHOLE_DAY" || event.type === "MULTI_DAY";
+
+  const { data: session } = authClient.useSession();
+  const isHost = event.hostId === session?.user.id;
 
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as ManageTabKey)}>
@@ -117,7 +119,7 @@ export function ManageTabs({
         value="cohosts"
         className="focus-visible:outline-none focus-visible:ring-0"
       >
-        <CohostsSection />
+        <CohostsSection eventId={event.id} isHost={isHost} />
       </TabsContent>
     </Tabs>
   );

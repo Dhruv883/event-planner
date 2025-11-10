@@ -12,9 +12,11 @@ export default function Navbar() {
     <header className="w-full py-4 px-6 font-urbanist">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-foreground text-2xl font-semibold">
-            Connect
-          </span>
+          <a href="/">
+            <span className="text-foreground text-2xl font-semibold">
+              Connect
+            </span>
+          </a>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex flex-1 items-center justify-end gap-4">

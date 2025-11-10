@@ -300,4 +300,6 @@ router.delete("/:id/activities/:activityId", requireAuth, async (req, res) => {
   }
 });
 
+// Co-host routes moved to routers/cohosts.ts to keep this file focused on core event & activity CRUD.
+
 export default router;

@@ -19,6 +19,14 @@ enum AttendeeStatus {
   DECLINED
 }
 
+enum CoHostInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
+  REMOVED
+}
+
 model Event {
   id          String    @id @default(cuid())
   title       String
@@ -38,6 +46,8 @@ model Event {
   coHosts   User[] @relation("EventCoHosts")
   attendees EventAttendee[]
   polls     Poll[]
+
+  coHostInvites CoHostInvite[]
 
 }
 
@@ -77,4 +87,20 @@ model Activity {
 
   dayId String
   day   Day    @relation(fields: [dayId], references: [id], onDelete: Cascade)
+}
+
+model CoHostInvite {
+  id            String              @id @default(cuid())
+  eventId       String
+  event         Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  inviterId     String
+  inviter       User                @relation("CoHostInviteInviter", fields: [inviterId], references: [id])
+  invitedEmail  String
+  invitedUserId String?
+  invitedUser   User?               @relation("CoHostInviteInvitee", fields: [invitedUserId], references: [id])
+  status        CoHostInviteStatus  @default(PENDING)
+  createdAt     DateTime            @default(now())
+  respondedAt   DateTime?
+
+  @@unique([eventId, invitedEmail])
 }

@@ -242,6 +242,7 @@ export type EventWhereInput = {
   coHosts?: Prisma.UserListRelationFilter
   attendees?: Prisma.EventAttendeeListRelationFilter
   polls?: Prisma.PollListRelationFilter
+  coHostInvites?: Prisma.CoHostInviteListRelationFilter
 }
 
 export type EventOrderByWithRelationInput = {
@@ -262,6 +263,7 @@ export type EventOrderByWithRelationInput = {
   coHosts?: Prisma.UserOrderByRelationAggregateInput
   attendees?: Prisma.EventAttendeeOrderByRelationAggregateInput
   polls?: Prisma.PollOrderByRelationAggregateInput
+  coHostInvites?: Prisma.CoHostInviteOrderByRelationAggregateInput
 }
 
 export type EventWhereUniqueInput = Prisma.AtLeast<{
@@ -285,6 +287,7 @@ export type EventWhereUniqueInput = Prisma.AtLeast<{
   coHosts?: Prisma.UserListRelationFilter
   attendees?: Prisma.EventAttendeeListRelationFilter
   polls?: Prisma.PollListRelationFilter
+  coHostInvites?: Prisma.CoHostInviteListRelationFilter
 }, "id">
 
 export type EventOrderByWithAggregationInput = {
@@ -340,6 +343,7 @@ export type EventCreateInput = {
   coHosts?: Prisma.UserCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeCreateNestedManyWithoutEventInput
   polls?: Prisma.PollCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateInput = {
@@ -359,6 +363,7 @@ export type EventUncheckedCreateInput = {
   coHosts?: Prisma.UserUncheckedCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeUncheckedCreateNestedManyWithoutEventInput
   polls?: Prisma.PollUncheckedCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventUpdateInput = {
@@ -378,6 +383,7 @@ export type EventUpdateInput = {
   coHosts?: Prisma.UserUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateInput = {
@@ -397,6 +403,7 @@ export type EventUncheckedUpdateInput = {
   coHosts?: Prisma.UserUncheckedUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUncheckedUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUncheckedUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateManyInput = {
@@ -619,6 +626,20 @@ export type EventUpdateOneRequiredWithoutDaysNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EventUpdateToOneWithWhereWithoutDaysInput, Prisma.EventUpdateWithoutDaysInput>, Prisma.EventUncheckedUpdateWithoutDaysInput>
 }
 
+export type EventCreateNestedOneWithoutCoHostInvitesInput = {
+  create?: Prisma.XOR<Prisma.EventCreateWithoutCoHostInvitesInput, Prisma.EventUncheckedCreateWithoutCoHostInvitesInput>
+  connectOrCreate?: Prisma.EventCreateOrConnectWithoutCoHostInvitesInput
+  connect?: Prisma.EventWhereUniqueInput
+}
+
+export type EventUpdateOneRequiredWithoutCoHostInvitesNestedInput = {
+  create?: Prisma.XOR<Prisma.EventCreateWithoutCoHostInvitesInput, Prisma.EventUncheckedCreateWithoutCoHostInvitesInput>
+  connectOrCreate?: Prisma.EventCreateOrConnectWithoutCoHostInvitesInput
+  upsert?: Prisma.EventUpsertWithoutCoHostInvitesInput
+  connect?: Prisma.EventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EventUpdateToOneWithWhereWithoutCoHostInvitesInput, Prisma.EventUpdateWithoutCoHostInvitesInput>, Prisma.EventUncheckedUpdateWithoutCoHostInvitesInput>
+}
+
 export type EventCreateNestedOneWithoutPollsInput = {
   create?: Prisma.XOR<Prisma.EventCreateWithoutPollsInput, Prisma.EventUncheckedCreateWithoutPollsInput>
   connectOrCreate?: Prisma.EventCreateOrConnectWithoutPollsInput
@@ -649,6 +670,7 @@ export type EventCreateWithoutHostInput = {
   coHosts?: Prisma.UserCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeCreateNestedManyWithoutEventInput
   polls?: Prisma.PollCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutHostInput = {
@@ -667,6 +689,7 @@ export type EventUncheckedCreateWithoutHostInput = {
   coHosts?: Prisma.UserUncheckedCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeUncheckedCreateNestedManyWithoutEventInput
   polls?: Prisma.PollUncheckedCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutHostInput = {
@@ -695,6 +718,7 @@ export type EventCreateWithoutCoHostsInput = {
   host: Prisma.UserCreateNestedOneWithoutHostedEventsInput
   attendees?: Prisma.EventAttendeeCreateNestedManyWithoutEventInput
   polls?: Prisma.PollCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutCoHostsInput = {
@@ -713,6 +737,7 @@ export type EventUncheckedCreateWithoutCoHostsInput = {
   days?: Prisma.DayUncheckedCreateNestedManyWithoutEventInput
   attendees?: Prisma.EventAttendeeUncheckedCreateNestedManyWithoutEventInput
   polls?: Prisma.PollUncheckedCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutCoHostsInput = {
@@ -786,6 +811,7 @@ export type EventCreateWithoutAttendeesInput = {
   host: Prisma.UserCreateNestedOneWithoutHostedEventsInput
   coHosts?: Prisma.UserCreateNestedManyWithoutCoHostedEventsInput
   polls?: Prisma.PollCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutAttendeesInput = {
@@ -804,6 +830,7 @@ export type EventUncheckedCreateWithoutAttendeesInput = {
   days?: Prisma.DayUncheckedCreateNestedManyWithoutEventInput
   coHosts?: Prisma.UserUncheckedCreateNestedManyWithoutCoHostedEventsInput
   polls?: Prisma.PollUncheckedCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutAttendeesInput = {
@@ -838,6 +865,7 @@ export type EventUpdateWithoutAttendeesInput = {
   host?: Prisma.UserUpdateOneRequiredWithoutHostedEventsNestedInput
   coHosts?: Prisma.UserUpdateManyWithoutCoHostedEventsNestedInput
   polls?: Prisma.PollUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutAttendeesInput = {
@@ -856,6 +884,7 @@ export type EventUncheckedUpdateWithoutAttendeesInput = {
   days?: Prisma.DayUncheckedUpdateManyWithoutEventNestedInput
   coHosts?: Prisma.UserUncheckedUpdateManyWithoutCoHostedEventsNestedInput
   polls?: Prisma.PollUncheckedUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateWithoutDaysInput = {
@@ -874,6 +903,7 @@ export type EventCreateWithoutDaysInput = {
   coHosts?: Prisma.UserCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeCreateNestedManyWithoutEventInput
   polls?: Prisma.PollCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutDaysInput = {
@@ -892,6 +922,7 @@ export type EventUncheckedCreateWithoutDaysInput = {
   coHosts?: Prisma.UserUncheckedCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeUncheckedCreateNestedManyWithoutEventInput
   polls?: Prisma.PollUncheckedCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutDaysInput = {
@@ -926,6 +957,7 @@ export type EventUpdateWithoutDaysInput = {
   coHosts?: Prisma.UserUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutDaysInput = {
@@ -941,6 +973,99 @@ export type EventUncheckedUpdateWithoutDaysInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hostId?: Prisma.StringFieldUpdateOperationsInput | string
+  coHosts?: Prisma.UserUncheckedUpdateManyWithoutCoHostedEventsNestedInput
+  attendees?: Prisma.EventAttendeeUncheckedUpdateManyWithoutEventNestedInput
+  polls?: Prisma.PollUncheckedUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedUpdateManyWithoutEventNestedInput
+}
+
+export type EventCreateWithoutCoHostInvitesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  coverImage?: string | null
+  type: $Enums.EventType
+  status?: $Enums.EventStatus
+  startDate: Date | string
+  endDate?: Date | string | null
+  location?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  days?: Prisma.DayCreateNestedManyWithoutEventInput
+  host: Prisma.UserCreateNestedOneWithoutHostedEventsInput
+  coHosts?: Prisma.UserCreateNestedManyWithoutCoHostedEventsInput
+  attendees?: Prisma.EventAttendeeCreateNestedManyWithoutEventInput
+  polls?: Prisma.PollCreateNestedManyWithoutEventInput
+}
+
+export type EventUncheckedCreateWithoutCoHostInvitesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  coverImage?: string | null
+  type: $Enums.EventType
+  status?: $Enums.EventStatus
+  startDate: Date | string
+  endDate?: Date | string | null
+  location?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  hostId: string
+  days?: Prisma.DayUncheckedCreateNestedManyWithoutEventInput
+  coHosts?: Prisma.UserUncheckedCreateNestedManyWithoutCoHostedEventsInput
+  attendees?: Prisma.EventAttendeeUncheckedCreateNestedManyWithoutEventInput
+  polls?: Prisma.PollUncheckedCreateNestedManyWithoutEventInput
+}
+
+export type EventCreateOrConnectWithoutCoHostInvitesInput = {
+  where: Prisma.EventWhereUniqueInput
+  create: Prisma.XOR<Prisma.EventCreateWithoutCoHostInvitesInput, Prisma.EventUncheckedCreateWithoutCoHostInvitesInput>
+}
+
+export type EventUpsertWithoutCoHostInvitesInput = {
+  update: Prisma.XOR<Prisma.EventUpdateWithoutCoHostInvitesInput, Prisma.EventUncheckedUpdateWithoutCoHostInvitesInput>
+  create: Prisma.XOR<Prisma.EventCreateWithoutCoHostInvitesInput, Prisma.EventUncheckedCreateWithoutCoHostInvitesInput>
+  where?: Prisma.EventWhereInput
+}
+
+export type EventUpdateToOneWithWhereWithoutCoHostInvitesInput = {
+  where?: Prisma.EventWhereInput
+  data: Prisma.XOR<Prisma.EventUpdateWithoutCoHostInvitesInput, Prisma.EventUncheckedUpdateWithoutCoHostInvitesInput>
+}
+
+export type EventUpdateWithoutCoHostInvitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
+  status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  days?: Prisma.DayUpdateManyWithoutEventNestedInput
+  host?: Prisma.UserUpdateOneRequiredWithoutHostedEventsNestedInput
+  coHosts?: Prisma.UserUpdateManyWithoutCoHostedEventsNestedInput
+  attendees?: Prisma.EventAttendeeUpdateManyWithoutEventNestedInput
+  polls?: Prisma.PollUpdateManyWithoutEventNestedInput
+}
+
+export type EventUncheckedUpdateWithoutCoHostInvitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
+  status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hostId?: Prisma.StringFieldUpdateOperationsInput | string
+  days?: Prisma.DayUncheckedUpdateManyWithoutEventNestedInput
   coHosts?: Prisma.UserUncheckedUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUncheckedUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUncheckedUpdateManyWithoutEventNestedInput
@@ -962,6 +1087,7 @@ export type EventCreateWithoutPollsInput = {
   host: Prisma.UserCreateNestedOneWithoutHostedEventsInput
   coHosts?: Prisma.UserCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutPollsInput = {
@@ -980,6 +1106,7 @@ export type EventUncheckedCreateWithoutPollsInput = {
   days?: Prisma.DayUncheckedCreateNestedManyWithoutEventInput
   coHosts?: Prisma.UserUncheckedCreateNestedManyWithoutCoHostedEventsInput
   attendees?: Prisma.EventAttendeeUncheckedCreateNestedManyWithoutEventInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutPollsInput = {
@@ -1014,6 +1141,7 @@ export type EventUpdateWithoutPollsInput = {
   host?: Prisma.UserUpdateOneRequiredWithoutHostedEventsNestedInput
   coHosts?: Prisma.UserUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutPollsInput = {
@@ -1032,6 +1160,7 @@ export type EventUncheckedUpdateWithoutPollsInput = {
   days?: Prisma.DayUncheckedUpdateManyWithoutEventNestedInput
   coHosts?: Prisma.UserUncheckedUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUncheckedUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateManyHostInput = {
@@ -1064,6 +1193,7 @@ export type EventUpdateWithoutHostInput = {
   coHosts?: Prisma.UserUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutHostInput = {
@@ -1082,6 +1212,7 @@ export type EventUncheckedUpdateWithoutHostInput = {
   coHosts?: Prisma.UserUncheckedUpdateManyWithoutCoHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUncheckedUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUncheckedUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateManyWithoutHostInput = {
@@ -1114,6 +1245,7 @@ export type EventUpdateWithoutCoHostsInput = {
   host?: Prisma.UserUpdateOneRequiredWithoutHostedEventsNestedInput
   attendees?: Prisma.EventAttendeeUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutCoHostsInput = {
@@ -1132,6 +1264,7 @@ export type EventUncheckedUpdateWithoutCoHostsInput = {
   days?: Prisma.DayUncheckedUpdateManyWithoutEventNestedInput
   attendees?: Prisma.EventAttendeeUncheckedUpdateManyWithoutEventNestedInput
   polls?: Prisma.PollUncheckedUpdateManyWithoutEventNestedInput
+  coHostInvites?: Prisma.CoHostInviteUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateManyWithoutCoHostsInput = {
@@ -1159,6 +1292,7 @@ export type EventCountOutputType = {
   coHosts: number
   attendees: number
   polls: number
+  coHostInvites: number
 }
 
 export type EventCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1166,6 +1300,7 @@ export type EventCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   coHosts?: boolean | EventCountOutputTypeCountCoHostsArgs
   attendees?: boolean | EventCountOutputTypeCountAttendeesArgs
   polls?: boolean | EventCountOutputTypeCountPollsArgs
+  coHostInvites?: boolean | EventCountOutputTypeCountCoHostInvitesArgs
 }
 
 /**
@@ -1206,6 +1341,13 @@ export type EventCountOutputTypeCountPollsArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.PollWhereInput
 }
 
+/**
+ * EventCountOutputType without action
+ */
+export type EventCountOutputTypeCountCoHostInvitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CoHostInviteWhereInput
+}
+
 
 export type EventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1225,6 +1367,7 @@ export type EventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   coHosts?: boolean | Prisma.Event$coHostsArgs<ExtArgs>
   attendees?: boolean | Prisma.Event$attendeesArgs<ExtArgs>
   polls?: boolean | Prisma.Event$pollsArgs<ExtArgs>
+  coHostInvites?: boolean | Prisma.Event$coHostInvitesArgs<ExtArgs>
   _count?: boolean | Prisma.EventCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["event"]>
 
@@ -1282,6 +1425,7 @@ export type EventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   coHosts?: boolean | Prisma.Event$coHostsArgs<ExtArgs>
   attendees?: boolean | Prisma.Event$attendeesArgs<ExtArgs>
   polls?: boolean | Prisma.Event$pollsArgs<ExtArgs>
+  coHostInvites?: boolean | Prisma.Event$coHostInvitesArgs<ExtArgs>
   _count?: boolean | Prisma.EventCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1299,6 +1443,7 @@ export type $EventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     coHosts: Prisma.$UserPayload<ExtArgs>[]
     attendees: Prisma.$EventAttendeePayload<ExtArgs>[]
     polls: Prisma.$PollPayload<ExtArgs>[]
+    coHostInvites: Prisma.$CoHostInvitePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1712,6 +1857,7 @@ export interface Prisma__EventClient<T, Null = never, ExtArgs extends runtime.Ty
   coHosts<T extends Prisma.Event$coHostsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Event$coHostsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attendees<T extends Prisma.Event$attendeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Event$attendeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventAttendeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   polls<T extends Prisma.Event$pollsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Event$pollsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PollPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  coHostInvites<T extends Prisma.Event$coHostInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Event$coHostInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CoHostInvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2242,6 +2388,30 @@ export type Event$pollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.PollScalarFieldEnum | Prisma.PollScalarFieldEnum[]
+}
+
+/**
+ * Event.coHostInvites
+ */
+export type Event$coHostInvitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CoHostInvite
+   */
+  select?: Prisma.CoHostInviteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CoHostInvite
+   */
+  omit?: Prisma.CoHostInviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CoHostInviteInclude<ExtArgs> | null
+  where?: Prisma.CoHostInviteWhereInput
+  orderBy?: Prisma.CoHostInviteOrderByWithRelationInput | Prisma.CoHostInviteOrderByWithRelationInput[]
+  cursor?: Prisma.CoHostInviteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CoHostInviteScalarFieldEnum | Prisma.CoHostInviteScalarFieldEnum[]
 }
 
 /**

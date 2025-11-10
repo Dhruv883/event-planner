@@ -402,6 +402,7 @@ export const ModelName = {
   EventAttendee: 'EventAttendee',
   Day: 'Day',
   Activity: 'Activity',
+  CoHostInvite: 'CoHostInvite',
   Poll: 'Poll',
   PollOption: 'PollOption',
   PollResponse: 'PollResponse',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "event" | "eventAttendee" | "day" | "activity" | "poll" | "pollOption" | "pollResponse" | "pollSettings"
+    modelProps: "user" | "session" | "account" | "verification" | "event" | "eventAttendee" | "day" | "activity" | "coHostInvite" | "poll" | "pollOption" | "pollResponse" | "pollSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1017,6 +1018,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CoHostInvite: {
+      payload: Prisma.$CoHostInvitePayload<ExtArgs>
+      fields: Prisma.CoHostInviteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CoHostInviteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CoHostInviteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>
+        }
+        findFirst: {
+          args: Prisma.CoHostInviteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CoHostInviteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>
+        }
+        findMany: {
+          args: Prisma.CoHostInviteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>[]
+        }
+        create: {
+          args: Prisma.CoHostInviteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>
+        }
+        createMany: {
+          args: Prisma.CoHostInviteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CoHostInviteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>[]
+        }
+        delete: {
+          args: Prisma.CoHostInviteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>
+        }
+        update: {
+          args: Prisma.CoHostInviteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>
+        }
+        deleteMany: {
+          args: Prisma.CoHostInviteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CoHostInviteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CoHostInviteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>[]
+        }
+        upsert: {
+          args: Prisma.CoHostInviteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CoHostInvitePayload>
+        }
+        aggregate: {
+          args: Prisma.CoHostInviteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCoHostInvite>
+        }
+        groupBy: {
+          args: Prisma.CoHostInviteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CoHostInviteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CoHostInviteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CoHostInviteCountAggregateOutputType> | number
+        }
+      }
+    }
     Poll: {
       payload: Prisma.$PollPayload<ExtArgs>
       fields: Prisma.PollFieldRefs
@@ -1463,6 +1538,20 @@ export const ActivityScalarFieldEnum = {
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
 
 
+export const CoHostInviteScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  inviterId: 'inviterId',
+  invitedEmail: 'invitedEmail',
+  invitedUserId: 'invitedUserId',
+  status: 'status',
+  createdAt: 'createdAt',
+  respondedAt: 'respondedAt'
+} as const
+
+export type CoHostInviteScalarFieldEnum = (typeof CoHostInviteScalarFieldEnum)[keyof typeof CoHostInviteScalarFieldEnum]
+
+
 export const PollScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -1611,6 +1700,20 @@ export type EnumAttendeeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'AttendeeStatus[]'
  */
 export type ListEnumAttendeeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttendeeStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CoHostInviteStatus'
+ */
+export type EnumCoHostInviteStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CoHostInviteStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CoHostInviteStatus[]'
+ */
+export type ListEnumCoHostInviteStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CoHostInviteStatus[]'>
     
 
 
@@ -1774,6 +1877,7 @@ export type GlobalOmitConfig = {
   eventAttendee?: Prisma.EventAttendeeOmit
   day?: Prisma.DayOmit
   activity?: Prisma.ActivityOmit
+  coHostInvite?: Prisma.CoHostInviteOmit
   poll?: Prisma.PollOmit
   pollOption?: Prisma.PollOptionOmit
   pollResponse?: Prisma.PollResponseOmit

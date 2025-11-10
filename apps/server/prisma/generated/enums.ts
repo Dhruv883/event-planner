@@ -37,6 +37,17 @@ export const AttendeeStatus = {
 export type AttendeeStatus = (typeof AttendeeStatus)[keyof typeof AttendeeStatus]
 
 
+export const CoHostInviteStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED',
+  REVOKED: 'REVOKED',
+  REMOVED: 'REMOVED'
+} as const
+
+export type CoHostInviteStatus = (typeof CoHostInviteStatus)[keyof typeof CoHostInviteStatus]
+
+
 export const PollStatus = {
   OPEN: 'OPEN',
   CLOSED: 'CLOSED'

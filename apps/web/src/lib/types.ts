@@ -29,6 +29,27 @@ export interface EventData {
   days?: EventDay[];
 }
 
+export interface CoHostInvite {
+  id: string;
+  eventId?: string;
+  invitedEmail: string;
+  invitedUserId?: string | null;
+  status: "PENDING" | "ACCEPTED" | "DECLINED" | "REVOKED" | "REMOVED";
+  createdAt: string;
+  respondedAt?: string | null;
+}
+
+export interface CoHostUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+}
+
+export interface CoHostOverview {
+  coHosts: CoHostUser[];
+  invites: CoHostInvite[];
+}
+
 export interface CreateEventPayload {
   title: string;
   description: string;

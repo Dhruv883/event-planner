@@ -14,6 +14,9 @@ model User {
   attendedEvents EventAttendee[]
   createdPolls   Poll[]            @relation("PollCreator")
   pollResponses  PollResponse[]
+  
+  coHostInvitesSent     CoHostInvite[] @relation("CoHostInviteInviter")
+  coHostInvitesReceived CoHostInvite[] @relation("CoHostInviteInvitee")
 
   @@unique([email])
   @@map("user")

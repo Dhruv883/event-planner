@@ -75,12 +75,30 @@ export default function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Profile</span>
+            <Link to="/profile" className="flex items-center gap-2 w-full">
+              <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
+              <span>Profile</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/invites" className="flex items-center gap-2 w-full">
+              <Layers2Icon
+                size={16}
+                className="opacity-60"
+                aria-hidden="true"
+              />
+              <span>Invites</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Layers2Icon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Settings</span>
+            <Link to="/settings" className="flex items-center gap-2 w-full">
+              <Layers2Icon
+                size={16}
+                className="opacity-60"
+                aria-hidden="true"
+              />
+              <span>Settings</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

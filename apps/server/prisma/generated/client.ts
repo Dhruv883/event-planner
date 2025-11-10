@@ -82,6 +82,11 @@ export type Day = Prisma.DayModel
  */
 export type Activity = Prisma.ActivityModel
 /**
+ * Model CoHostInvite
+ * 
+ */
+export type CoHostInvite = Prisma.CoHostInviteModel
+/**
  * Model Poll
  * 
  */
@@ -110,6 +115,9 @@ export const EventStatus = $Enums.EventStatus
 
 export type AttendeeStatus = $Enums.AttendeeStatus
 export const AttendeeStatus = $Enums.AttendeeStatus
+
+export type CoHostInviteStatus = $Enums.CoHostInviteStatus
+export const CoHostInviteStatus = $Enums.CoHostInviteStatus
 
 export type PollStatus = $Enums.PollStatus
 export const PollStatus = $Enums.PollStatus
