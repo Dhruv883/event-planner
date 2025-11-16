@@ -21,7 +21,6 @@ model Poll {
   title       String
   description String?
   status      PollStatus @default(OPEN)
-  expiresAt   DateTime?
 
   eventId     String
   event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)

@@ -100,11 +100,25 @@ export function PollsSection({ eventId }: { eventId: string }) {
     if (!eventId) return;
     try {
       setLoading(true);
-      const next = multiple
-        ? current.includes(optionId)
-          ? current.filter((id) => id !== optionId)
-          : [...current, optionId]
-        : [optionId];
+      let next: string[];
+      if (multiple) {
+        if (current.includes(optionId)) {
+          const filtered = current.filter((id) => id !== optionId);
+          if (filtered.length === 0) {
+            setLoading(false);
+            return;
+          }
+          next = filtered;
+        } else {
+          next = [...current, optionId];
+        }
+      } else {
+        if (current.length === 1 && current[0] === optionId) {
+          setLoading(false);
+          return;
+        }
+        next = [optionId];
+      }
       await votePoll(eventId, pollId, { optionIds: next });
       await loadPolls();
     } catch (e: any) {
@@ -167,31 +181,7 @@ export function PollsSection({ eventId }: { eventId: string }) {
           />
         </div>
       </div>
-      <div className="mb-3 flex gap-2">
-        <Button
-          size="sm"
-          variant={kind === "date" ? "secondary" : "outline"}
-          onClick={() => setKind("date")}
-        >
-          Date
-        </Button>
-        <Button
-          size="sm"
-          variant={kind === "activity" ? "secondary" : "outline"}
-          onClick={() => setKind("activity")}
-        >
-          Activity
-        </Button>
-        <div className="ms-auto flex items-center gap-2 text-sm">
-          <input
-            id="allow-multi"
-            type="checkbox"
-            checked={allowMultiple}
-            onChange={(e) => setAllowMultiple(e.target.checked)}
-          />
-          <Label htmlFor="allow-multi">Allow multiple selection</Label>
-        </div>
-      </div>
+
       {/* Settings row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
         <div>
