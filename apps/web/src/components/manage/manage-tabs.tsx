@@ -107,7 +107,7 @@ export function ManageTabs({
         value="polls"
         className="focus-visible:outline-none focus-visible:ring-0"
       >
-        <PollsSection />
+        <PollsSection eventId={event.id} />
       </TabsContent>
       <TabsContent
         value="invites"

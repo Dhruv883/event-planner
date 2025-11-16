@@ -68,3 +68,53 @@ export interface CreateActivityPayload {
   location?: string | null;
   description?: string | null;
 }
+
+// ---- Polls ----
+export type PollStatus = "OPEN" | "CLOSED";
+export type PollVoter = "ALL_ATTENDEES" | "ACCEPTED_ATTENDEES" | "HOSTS_ONLY";
+export type PollResultVisibility =
+  | "VISIBLE_TO_ALL"
+  | "VISIBLE_TO_HOSTS_ONLY"
+  | "VISIBLE_AFTER_VOTING"
+  | "HIDDEN_UNTIL_CLOSED";
+
+export interface PollSettings {
+  id: string;
+  allowMultipleSelections: boolean;
+  voterPermission: PollVoter;
+  resultVisibility: PollResultVisibility;
+  pollId: string;
+}
+
+export interface PollOptionDTO {
+  id: string;
+  text: string;
+  order: number;
+  count?: number; // present depending on visibility
+}
+
+export interface PollDTO {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: PollStatus;
+  settings?: Partial<PollSettings> | null;
+  options: PollOptionDTO[];
+  mySelections: string[]; // option ids
+}
+
+export interface CreatePollPayload {
+  title: string;
+  description?: string | null;
+  options: string[]; // option texts
+  settings?: Partial<
+    Pick<
+      PollSettings,
+      "allowMultipleSelections" | "voterPermission" | "resultVisibility"
+    >
+  >;
+}
+
+export interface VotePayload {
+  optionIds: string[];
+}
