@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, CheckCircle2, Lock } from "lucide-react";
-import { createPoll, fetchPolls, votePoll, updatePoll } from "@/lib/api";
+import { createPoll, fetchPolls, votePoll, updatePoll } from "@/lib/api/polls";
 import type { PollDTO } from "@/lib/types";
 import { toast } from "sonner";
 // Removed ScrollArea/ScrollBar for a simpler, more compatible horizontal scroller

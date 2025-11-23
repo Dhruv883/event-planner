@@ -4,7 +4,7 @@ import {
   fetchCoHostInvites,
   acceptCoHostInvite,
   declineCoHostInvite,
-} from "@/lib/api";
+} from "@/lib/api/cohosts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 

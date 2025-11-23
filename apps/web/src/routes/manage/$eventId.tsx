@@ -1,8 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
-import { fetchEvent } from "@/lib/api";
+import { fetchEvent } from "@/lib/api/events";
 import { useEffect, useState, useCallback } from "react";
-// Removed inline header; imported reusable component instead
 import { EventHeader } from "../../components/manage/event-header";
 import { ManageTabs } from "../../components/manage/manage-tabs";
 import type { EventData } from "@/lib/types";

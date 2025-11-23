@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
-import { createEvent } from "@/lib/api";
+import { createEvent } from "@/lib/api/events";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

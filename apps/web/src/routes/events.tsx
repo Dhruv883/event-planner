@@ -1,5 +1,5 @@
 import { authClient } from "@/lib/auth-client";
-import { fetchEvents } from "@/lib/api";
+import { fetchEvents } from "@/lib/api/events";
 import {
   createFileRoute,
   redirect,

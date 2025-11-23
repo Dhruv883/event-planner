@@ -8,7 +8,7 @@ import {
   createActivityDateTime,
   validateActivityTimes,
 } from "../utils/activity-utils";
-import { createActivity, deleteActivity } from "@/lib/api";
+import { createActivity, deleteActivity } from "@/lib/api/events";
 
 export const useActivities = (event: EventData) => {
   const [activitiesByDay, setActivitiesByDay] = useState<

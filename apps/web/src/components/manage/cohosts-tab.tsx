@@ -7,7 +7,7 @@ import {
   fetchCoHostOverview,
   removeCoHost,
   revokeCoHostInvite,
-} from "@/lib/api";
+} from "@/lib/api/cohosts";
 import type { CoHostOverview } from "@/lib/types";
 
 interface Props {
