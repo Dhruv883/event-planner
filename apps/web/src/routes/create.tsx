@@ -15,7 +15,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { CalendarCheck, CalendarRange, FileText, MapPin } from "lucide-react";
+import {
+  CalendarCheck,
+  CalendarRange,
+  FileText,
+  MapPin,
+  ShieldCheck,
+} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import CoverBanner from "@/components/create/cover-banner";
 import CoverPicker from "@/components/create/cover-picker";
@@ -62,6 +69,7 @@ function CreateEventPage() {
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [requireApproval, setRequireApproval] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -160,6 +168,7 @@ function CreateEventPage() {
       startDate: buildStartDateISO(type, date, startTime),
       endDate: buildEndDateISO(type, date, endDate, endTime),
       coverImage: coverUrl,
+      requireApproval,
     };
 
     try {
@@ -295,6 +304,42 @@ function CreateEventPage() {
                   endTime={endTime}
                   onChange={{ setDate, setEndDate, setStartTime, setEndTime }}
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden">
+            <CardHeader className="flex-row items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="grid size-8 place-items-center rounded-md bg-primary/10 text-primary">
+                  <ShieldCheck className="size-4" />
+                </div>
+                <div>
+                  <CardTitle>Attendee Settings</CardTitle>
+                  <CardDescription>
+                    Control how people join your event
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="requireApproval"
+                  checked={requireApproval}
+                  onCheckedChange={(checked) =>
+                    setRequireApproval(checked === true)
+                  }
+                />
+                <div className="grid gap-0.5">
+                  <Label htmlFor="requireApproval" className="cursor-pointer">
+                    Require approval to join
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    When enabled, attendees must be approved by a host before
+                    they can join the event.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

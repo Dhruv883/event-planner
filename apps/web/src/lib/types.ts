@@ -85,6 +85,7 @@ export interface CreateEventPayload {
   startDate: string | null;
   endDate: string | null;
   coverImage: string;
+  requireApproval?: boolean;
 }
 
 export interface CreateActivityPayload {
