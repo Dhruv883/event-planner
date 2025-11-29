@@ -113,7 +113,7 @@ export function ManageTabs({
         value="invites"
         className="focus-visible:outline-none focus-visible:ring-0"
       >
-        <InvitesSection />
+        <InvitesSection event={event} />
       </TabsContent>
       <TabsContent
         value="cohosts"

@@ -50,6 +50,33 @@ export interface CoHostOverview {
   invites: CoHostInvite[];
 }
 
+// ---- Attendees ----
+export type AttendeeStatus = "PENDING" | "ACCEPTED" | "DECLINED";
+
+export interface EventAttendeeItem {
+  eventId: string;
+  userId: string;
+  status: AttendeeStatus;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  };
+}
+
+export interface EventAttendeesResponse {
+  eventId: string;
+  requireApproval: boolean;
+  attendees: EventAttendeeItem[];
+  groups: {
+    pending: EventAttendeeItem[];
+    accepted: EventAttendeeItem[];
+    declined: EventAttendeeItem[];
+  };
+}
+
 export interface CreateEventPayload {
   title: string;
   description: string;
