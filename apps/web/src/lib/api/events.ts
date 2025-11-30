@@ -3,6 +3,7 @@ import type {
   CreateActivityPayload,
   CreateEventPayload,
   EventData,
+  EventPublicPreview,
 } from "../types";
 
 export async function fetchEvents(): Promise<EventData[]> {
@@ -17,16 +18,34 @@ export async function fetchEvent(eventId: string): Promise<EventData> {
   return response.data;
 }
 
+export async function fetchEventPublicPreview(
+  eventId: string
+): Promise<EventPublicPreview> {
+  const response = await apiRequest<{ data: EventPublicPreview }>(
+    `/api/events/${encodeURIComponent(eventId)}/public-preview`
+  );
+  return response.data;
+}
+
+export async function joinEvent(
+  eventId: string
+): Promise<{ status: "PENDING" | "ACCEPTED"; reused?: boolean }> {
+  const response = await apiRequest<{
+    data: { status: "PENDING" | "ACCEPTED" };
+    reused?: boolean;
+  }>(`/api/events/${encodeURIComponent(eventId)}/join`, {
+    method: "POST",
+  });
+  return { status: response.data.status, reused: response.reused };
+}
+
 export async function createEvent(
   payload: CreateEventPayload
 ): Promise<string> {
-  const response = await apiRequest<{ data: { id: string } }>(
-    "/api/events",
-    {
-      method: "POST",
-      data: payload,
-    }
-  );
+  const response = await apiRequest<{ data: { id: string } }>("/api/events", {
+    method: "POST",
+    data: payload,
+  });
   return response.data.id;
 }
 

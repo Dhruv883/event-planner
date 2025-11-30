@@ -20,6 +20,7 @@ import { Route as CreateRouteImport } from './routes/create'
 import { Route as EventIdRouteImport } from './routes/$eventId'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManageEventIdRouteImport } from './routes/manage/$eventId'
+import { Route as InviteEventIdRouteImport } from './routes/invite/$eventId'
 import { Route as EditEventIdRouteImport } from './routes/edit/$eventId'
 
 const SignupRoute = SignupRouteImport.update({
@@ -77,6 +78,11 @@ const ManageEventIdRoute = ManageEventIdRouteImport.update({
   path: '/manage/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InviteEventIdRoute = InviteEventIdRouteImport.update({
+  id: '/invite/$eventId',
+  path: '/invite/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditEventIdRoute = EditEventIdRouteImport.update({
   id: '/edit/$eventId',
   path: '/edit/$eventId',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/edit/$eventId': typeof EditEventIdRoute
+  '/invite/$eventId': typeof InviteEventIdRoute
   '/manage/$eventId': typeof ManageEventIdRoute
 }
 export interface FileRoutesByTo {
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/edit/$eventId': typeof EditEventIdRoute
+  '/invite/$eventId': typeof InviteEventIdRoute
   '/manage/$eventId': typeof ManageEventIdRoute
 }
 export interface FileRoutesById {
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/edit/$eventId': typeof EditEventIdRoute
+  '/invite/$eventId': typeof InviteEventIdRoute
   '/manage/$eventId': typeof ManageEventIdRoute
 }
 export interface FileRouteTypes {
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/edit/$eventId'
+    | '/invite/$eventId'
     | '/manage/$eventId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/edit/$eventId'
+    | '/invite/$eventId'
     | '/manage/$eventId'
   id:
     | '__root__'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/edit/$eventId'
+    | '/invite/$eventId'
     | '/manage/$eventId'
   fileRoutesById: FileRoutesById
 }
@@ -183,6 +195,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   EditEventIdRoute: typeof EditEventIdRoute
+  InviteEventIdRoute: typeof InviteEventIdRoute
   ManageEventIdRoute: typeof ManageEventIdRoute
 }
 
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManageEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invite/$eventId': {
+      id: '/invite/$eventId'
+      path: '/invite/$eventId'
+      fullPath: '/invite/$eventId'
+      preLoaderRoute: typeof InviteEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/edit/$eventId': {
       id: '/edit/$eventId'
       path: '/edit/$eventId'
@@ -287,6 +307,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   EditEventIdRoute: EditEventIdRoute,
+  InviteEventIdRoute: InviteEventIdRoute,
   ManageEventIdRoute: ManageEventIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -13,6 +13,8 @@ export interface Activity {
   location: string | null;
 }
 
+export type UserRole = "host" | "cohost" | "attendee";
+
 export interface EventData {
   id: string;
   title: string;
@@ -27,6 +29,29 @@ export interface EventData {
   updatedAt: string;
   hostId: string;
   days?: EventDay[];
+  coHosts?: { id: string; name?: string | null; email?: string | null }[];
+  userRole?: UserRole;
+  isHost?: boolean;
+  isCoHost?: boolean;
+}
+
+export interface EventPublicPreview {
+  id: string;
+  title: string;
+  description: string | null;
+  coverImage: string;
+  type: "ONE_OFF" | "WHOLE_DAY" | "MULTI_DAY";
+  status: "PLANNING" | "UPCOMING" | "LIVE" | "COMPLETED" | "CANCELLED";
+  startDate: string;
+  endDate: string | null;
+  location: string | null;
+  requireApproval: boolean;
+  host: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  };
+  attendeeCount: number;
 }
 
 export interface CoHostInvite {

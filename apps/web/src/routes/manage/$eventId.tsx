@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 import { fetchEvent } from "@/lib/api/events";
 import { useEffect, useState, useCallback } from "react";
@@ -48,6 +48,7 @@ export const Route = createFileRoute("/manage/$eventId")({
 
 function RouteComponent() {
   const { eventId } = Route.useParams();
+  const navigate = useNavigate();
   const [event, setEvent] = useState<EventData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +62,14 @@ function RouteComponent() {
     (async () => {
       try {
         const data = await fetchEvent(eventId);
-        if (!cancelled) setEvent(data);
+        if (!cancelled) {
+          // Redirect attendees (non-host, non-cohost) to event page
+          if (data.userRole === "attendee") {
+            navigate({ to: "/$eventId", params: { eventId } });
+            return;
+          }
+          setEvent(data);
+        }
       } catch (err) {
         if (!cancelled)
           setError(err instanceof Error ? err.message : "Failed to load event");
@@ -73,20 +81,20 @@ function RouteComponent() {
     return () => {
       cancelled = true;
     };
-  }, [eventId]);
+  }, [eventId, navigate]);
 
   const { dateLabel, endDateLabel, time } = getEventDateInfo(event);
 
-  const publicEventUrl = `${location.origin}/${eventId}`;
+  const inviteUrl = `${location.origin}/invite/${eventId}`;
 
   const handleCopyLink = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(publicEventUrl);
+      await navigator.clipboard.writeText(inviteUrl);
       setCopyState({ copied: true, error: false });
     } catch {
       setCopyState({ copied: true, error: true });
     }
-  }, [publicEventUrl]);
+  }, [inviteUrl]);
 
   useEffect(() => {
     if (copyState.copied) {

@@ -146,8 +146,26 @@ router.get("/", requireAuth, async (req, res) => {
           { attendees: { some: { userId: req.user.id } } },
         ],
       },
+      include: {
+        coHosts: {
+          select: { id: true },
+        },
+      },
     });
-    return res.status(200).json({ data: events });
+
+    // Add user role to each event
+    const eventsWithRole = events.map((event) => {
+      const isHost = event.hostId === req.user.id;
+      const isCoHost = event.coHosts?.some((u) => u.id === req.user.id);
+      return {
+        ...event,
+        userRole: isHost ? "host" : isCoHost ? "cohost" : "attendee",
+        isHost,
+        isCoHost,
+      };
+    });
+
+    return res.status(200).json({ data: eventsWithRole });
   } catch (error) {
     console.error("Get events error:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -183,9 +201,76 @@ router.get("/:id", requireAuth, async (req, res) => {
       return res.status(403).json({ error: "Forbidden" });
     }
 
-    return res.status(200).json({ data: event });
+    return res.status(200).json({
+      data: {
+        ...event,
+        userRole: isHost ? "host" : isCoHost ? "cohost" : "attendee",
+        isHost,
+        isCoHost,
+      },
+    });
   } catch (error) {
     console.error("Get event by id error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Public preview for invite page - no auth required
+router.get("/:id/public-preview", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const event = await prisma.event.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        coverImage: true,
+        type: true,
+        status: true,
+        startDate: true,
+        endDate: true,
+        location: true,
+        requireApproval: true,
+        host: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        _count: {
+          select: {
+            attendees: {
+              where: { status: "ACCEPTED" },
+            },
+          },
+        },
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    return res.status(200).json({
+      data: {
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        coverImage: event.coverImage,
+        type: event.type,
+        status: event.status,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        location: event.location,
+        requireApproval: event.requireApproval,
+        host: event.host,
+        attendeeCount: event._count.attendees,
+      },
+    });
+  } catch (error) {
+    console.error("Get public event preview error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

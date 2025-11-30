@@ -1,7 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
-import { MapPin, Users, Clock, ArrowUpRight, Sparkles } from "lucide-react";
-import { type EventData } from "@/lib/types";
+import {
+  MapPin,
+  Users,
+  Clock,
+  ArrowUpRight,
+  Sparkles,
+  Settings,
+} from "lucide-react";
+import { type EventData, type UserRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -26,8 +33,18 @@ export function EventCard({ event }: EventCardProps) {
 
   const statusTheme = themeByStatus(event.status);
 
+  // Determine navigation based on user role
+  const canManage = event.userRole === "host" || event.userRole === "cohost";
+  const linkTo = canManage ? "/manage/$eventId" : "/$eventId";
+  const roleLabel =
+    event.userRole === "host"
+      ? "Host"
+      : event.userRole === "cohost"
+        ? "Co-host"
+        : "Attending";
+
   return (
-    <Link to="/manage/$eventId" params={{ eventId: event.id }}>
+    <Link to={linkTo} params={{ eventId: event.id }}>
       <Card
         className={cn(
           "group relative overflow-hidden p-0 transition-all",
@@ -44,7 +61,11 @@ export function EventCard({ event }: EventCardProps) {
               "bg-white/10 text-white hover:scale-105 hover:bg-white/20"
             )}
           >
-            <ArrowUpRight className="h-4 w-4" />
+            {canManage ? (
+              <Settings className="h-4 w-4" />
+            ) : (
+              <ArrowUpRight className="h-4 w-4" />
+            )}
           </div>
         </div>
         {/* subtle tinted overlay */}
@@ -114,8 +135,13 @@ export function EventCard({ event }: EventCardProps) {
             <div className="mt-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <AvatarStack namesFromTitle={event.title} />
-                <Pill className="bg-white/10 text-white">
-                  <Users className="h-3.5 w-3.5 mr-1" /> Host
+                <Pill
+                  className={cn(
+                    "text-white",
+                    canManage ? "bg-emerald-500/20" : "bg-white/10"
+                  )}
+                >
+                  <Users className="h-3.5 w-3.5 mr-1" /> {roleLabel}
                 </Pill>
               </div>
             </div>
