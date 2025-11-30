@@ -71,6 +71,6 @@ export async function fetchCoHostInvites() {
       };
       inviter: { id: string; name: string | null; email: string | null };
     }>;
-  }>("/api/events/cohosts/invite/me");
+  }>("/api/invites/cohosts/me");
   return res.data;
 }

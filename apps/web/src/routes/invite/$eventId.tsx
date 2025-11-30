@@ -85,7 +85,6 @@ function RouteComponent() {
       setJoining(false);
     }
   };
-  console.log("hereeee mf");
 
   if (loading) {
     return (

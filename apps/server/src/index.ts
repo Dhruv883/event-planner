@@ -4,7 +4,7 @@ import express from "express";
 import { auth } from "./lib/auth";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import eventsRouter from "./routers/events";
-// Removed cohostInvitesRouter; merged into events router
+import invitesRouter from "./routers/invites";
 
 const app = express();
 
@@ -22,6 +22,7 @@ app.all("/api/auth{/*path}", toNodeHandler(auth));
 app.use(express.json());
 
 app.use("/api/events", eventsRouter);
+app.use("/api/invites", invitesRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
