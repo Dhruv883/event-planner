@@ -2,6 +2,8 @@ import express from "express";
 import prisma from "../../prisma";
 import { z } from "zod";
 import { requireAuth } from "../middleware/auth";
+import { requireEventMember } from "../middleware/event-auth";
+import { createDaysForEvent } from "../lib/event-helpers";
 import activitiesRouter from "./activities";
 import pollsRouter from "./polls";
 import cohostsRouter from "./cohosts";
@@ -16,13 +18,15 @@ const createEventSchema = z.object({
   type: z.enum(["ONE_OFF", "WHOLE_DAY", "MULTI_DAY"]),
   startDate: z.iso.datetime(),
   endDate: z.iso.datetime().optional().nullable(),
-  coverImage: z.string().url(),
+  coverImage: z.url(),
   requireApproval: z.boolean().optional().default(false),
 });
 
+// Create a new event
 router.post("/", requireAuth, async (req, res) => {
   try {
     const validation = createEventSchema.safeParse(req.body);
+
     if (!validation.success) {
       return res
         .status(400)
@@ -43,16 +47,17 @@ router.post("/", requireAuth, async (req, res) => {
     const startAt = new Date(startDate);
     const endAt = endDate ? new Date(endDate) : undefined;
 
+    // Validate dates based on event type
     if (type === "ONE_OFF") {
       if (!endAt) {
         return res
           .status(400)
-          .json({ error: "endDate is required for ONE_OFF events" });
+          .json({ error: "End Date is required for ONE_OFF events" });
       }
       if (endAt < startAt) {
         return res
           .status(400)
-          .json({ error: "endDate must be after or equal to startDate" });
+          .json({ error: "End Date must be after or equal to Start Date" });
       }
     }
 
@@ -60,39 +65,25 @@ router.post("/", requireAuth, async (req, res) => {
       if (!endAt) {
         return res
           .status(400)
-          .json({ error: "endDate is required for MULTI_DAY events" });
+          .json({ error: "End Date is required for MULTI_DAY events" });
       }
       if (endAt < startAt) {
         return res
           .status(400)
-          .json({ error: "endDate must be after or equal to startDate" });
+          .json({ error: "End Date must be after or equal to Start Date" });
       }
     }
-
-    const startOfDayUTC = (d: Date) =>
-      new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-    const enumerateDaysInclusiveUTC = (from: Date, to: Date) => {
-      const days: Date[] = [];
-      let cursor = startOfDayUTC(from);
-      const last = startOfDayUTC(to);
-      while (cursor.getTime() <= last.getTime()) {
-        days.push(new Date(cursor));
-        cursor = new Date(cursor);
-        cursor.setUTCDate(cursor.getUTCDate() + 1);
-      }
-      return days;
-    };
 
     const createdEvent = await prisma.$transaction(async (tx) => {
       const eventRow = await tx.event.create({
         data: {
           title,
-          description: description ?? undefined,
-          location: location ?? undefined,
-          type: type as any,
+          description: description,
+          location: location,
+          type: type,
           startDate: startAt,
           endDate: endAt,
-          coverImage: coverImage,
+          coverImage,
           requireApproval,
           hostId: req.user.id,
         },
@@ -107,25 +98,7 @@ router.post("/", requireAuth, async (req, res) => {
         },
       });
 
-      if (type === "WHOLE_DAY") {
-        await tx.day.createMany({
-          data: [
-            {
-              eventId: eventRow.id,
-              date: startOfDayUTC(startAt),
-            },
-          ],
-          skipDuplicates: true,
-        });
-      } else if (type === "MULTI_DAY" && endAt) {
-        const dayDates = enumerateDaysInclusiveUTC(startAt, endAt).map((d) => ({
-          eventId: eventRow.id,
-          date: d,
-        }));
-        if (dayDates.length) {
-          await tx.day.createMany({ data: dayDates, skipDuplicates: true });
-        }
-      }
+      await createDaysForEvent(tx, eventRow.id, type, startAt, endAt);
 
       return eventRow;
     });
@@ -137,6 +110,7 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
+// Get all events for the user
 router.get("/", requireAuth, async (req, res) => {
   try {
     const events = await prisma.event.findMany({
@@ -161,8 +135,6 @@ router.get("/", requireAuth, async (req, res) => {
       return {
         ...event,
         userRole: isHost ? "host" : isCoHost ? "cohost" : "attendee",
-        isHost,
-        isCoHost,
       };
     });
 
@@ -173,11 +145,11 @@ router.get("/", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/:id", requireAuth, async (req, res) => {
+// Get event by ID
+router.get("/:id", requireAuth, requireEventMember, async (req, res) => {
   try {
-    const id = req.params.id;
     const event = await prisma.event.findUnique({
-      where: { id },
+      where: { id: req.event!.id },
       include: {
         coHosts: true,
         attendees: true,
@@ -190,24 +162,12 @@ router.get("/:id", requireAuth, async (req, res) => {
       },
     });
 
-    if (!event) {
-      return res.status(404).json({ error: "Event not found" });
-    }
-
-    const isHost = event.hostId === req.user.id;
-    const isCoHost = event.coHosts?.some((u) => u.id === req.user.id);
-    const isAttendee = event.attendees?.some((a) => a.userId === req.user.id);
-
-    if (!isHost && !isCoHost && !isAttendee) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-
     return res.status(200).json({
       data: {
         ...event,
-        userRole: isHost ? "host" : isCoHost ? "cohost" : "attendee",
-        isHost,
-        isCoHost,
+        userRole: req.event!.role,
+        isHost: req.event!.role === "host",
+        isCoHost: req.event!.role === "cohost",
       },
     });
   } catch (error) {
@@ -216,12 +176,13 @@ router.get("/:id", requireAuth, async (req, res) => {
   }
 });
 
-// Public preview for invite page - no auth required
-router.get("/:id/public-preview", async (req, res) => {
+// Get event preview for invites
+router.get("/:id/preview", requireAuth, async (req, res) => {
   try {
-    const id = req.params.id;
+    const eventId = req.params.id;
+
     const event = await prisma.event.findUnique({
-      where: { id },
+      where: { id: eventId },
       select: {
         id: true,
         title: true,
@@ -238,13 +199,6 @@ router.get("/:id/public-preview", async (req, res) => {
             id: true,
             name: true,
             image: true,
-          },
-        },
-        _count: {
-          select: {
-            attendees: {
-              where: { status: "ACCEPTED" },
-            },
           },
         },
       },
@@ -267,57 +221,10 @@ router.get("/:id/public-preview", async (req, res) => {
         location: event.location,
         requireApproval: event.requireApproval,
         host: event.host,
-        attendeeCount: event._count.attendees,
       },
     });
   } catch (error) {
     console.error("Get public event preview error:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// Lightweight preview info for public event page and join logic
-router.get("/:id/preview", requireAuth, async (req, res) => {
-  try {
-    const id = req.params.id;
-    const event = await prisma.event.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        coverImage: true,
-        type: true,
-        status: true,
-        startDate: true,
-        endDate: true,
-        location: true,
-        hostId: true,
-        requireApproval: true,
-        attendees: {
-          select: {
-            userId: true,
-            status: true,
-          },
-        },
-      },
-    });
-
-    if (!event) {
-      return res.status(404).json({ error: "Event not found" });
-    }
-
-    const existing = event.attendees.find((a) => a.userId === req.user.id);
-
-    return res.status(200).json({
-      data: {
-        ...event,
-        myAttendeeStatus: existing?.status ?? null,
-        isHost: event.hostId === req.user.id,
-      },
-    });
-  } catch (error) {
-    console.error("Get event preview error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

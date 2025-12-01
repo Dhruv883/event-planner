@@ -36,7 +36,6 @@ function RouteComponent() {
       setLoading(true);
       setError(null);
       const eventsData = await fetchEvents();
-      console.log(eventsData);
 
       setEvents(eventsData);
     } catch (err) {

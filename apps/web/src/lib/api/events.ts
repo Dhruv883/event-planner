@@ -22,7 +22,7 @@ export async function fetchEventPublicPreview(
   eventId: string
 ): Promise<EventPublicPreview> {
   const response = await apiRequest<{ data: EventPublicPreview }>(
-    `/api/events/${encodeURIComponent(eventId)}/public-preview`
+    `/api/events/${encodeURIComponent(eventId)}/preview`
   );
   return response.data;
 }

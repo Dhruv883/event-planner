@@ -10,7 +10,6 @@ import {
   MapPin,
   Clock,
   Calendar,
-  Users,
   CheckCircle,
   Loader2,
   AlertCircle,
@@ -245,14 +244,6 @@ function RouteComponent() {
                   <span>{event.location}</span>
                 </div>
               )}
-
-              <div className="flex items-center gap-3 text-zinc-300">
-                <Users className="h-5 w-5 text-zinc-500" />
-                <span>
-                  {event.attendeeCount}{" "}
-                  {event.attendeeCount === 1 ? "attendee" : "attendees"}
-                </span>
-              </div>
             </div>
 
             {/* Description */}
