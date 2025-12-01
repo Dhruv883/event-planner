@@ -229,9 +229,9 @@ router.get("/:id/preview", requireAuth, async (req, res) => {
   }
 });
 
-router.use("/:id/attendees", attendeesRouter);
 router.use("/:id/activities", activitiesRouter);
 router.use("/:id/polls", pollsRouter);
 router.use("/:id/cohosts", cohostsRouter);
+router.use("/:id/attendees", attendeesRouter);
 
 export default router;
