@@ -2,22 +2,23 @@ import express from "express";
 import prisma from "../../prisma";
 import { z } from "zod";
 import { requireAuth } from "../middleware/auth";
+import { requireEventMember, requireHostOrCoHost } from "@/middleware/event-auth";
+import { isPollVisibleToUser, formatPollResponse, checkVotingEligibility, saveVotes } from "@/lib/poll-helpers";
 
 const router = express.Router({ mergeParams: true });
 
+const voterPermissionEnum = z.enum(["ALL_ATTENDEES", "ACCEPTED_ATTENDEES", "HOSTS_ONLY"]);
+const resultVisibilityEnum = z.enum([
+  "VISIBLE_TO_ALL",
+  "VISIBLE_TO_HOSTS_ONLY",
+  "VISIBLE_AFTER_VOTING",
+  "HIDDEN_UNTIL_CLOSED",
+]);
+
 const pollSettingsSchema = z.object({
   allowMultipleSelections: z.boolean().optional(),
-  voterPermission: z
-    .enum(["ALL_ATTENDEES", "ACCEPTED_ATTENDEES", "HOSTS_ONLY"])
-    .optional(),
-  resultVisibility: z
-    .enum([
-      "VISIBLE_TO_ALL",
-      "VISIBLE_TO_HOSTS_ONLY",
-      "VISIBLE_AFTER_VOTING",
-      "HIDDEN_UNTIL_CLOSED",
-    ])
-    .optional(),
+  voterPermission: voterPermissionEnum.optional(),
+  resultVisibility: resultVisibilityEnum.optional(),
 });
 
 const createPollSchema = z.object({
@@ -46,80 +47,60 @@ async function isHostOrCoHost(eventId: string, userId: string) {
   return { allowed: isHost || isCoHost, event } as const;
 }
 
-router.post("/", requireAuth, async (req, res) => {
+// Create a new poll for an event
+router.post("/", requireAuth, requireHostOrCoHost, async (req, res) => {
   try {
-    const eventId = req.params.id as string;
-    const parsed = createPollSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res
-        .status(400)
-        .json({ error: "Invalid body", details: parsed.error.flatten() });
+    const eventId = req.event!.id;
+
+    const parsedBody = createPollSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return res.status(400).json({ error: "Invalid body", details: parsedBody.error.flatten() });
     }
 
-    const { allowed } = await isHostOrCoHost(eventId, req.user.id);
-    if (!allowed) return res.status(403).json({ error: "Forbidden" });
+    const { title, description, options, settings } = parsedBody.data;
 
-    const { title, description, options, settings } = parsed.data;
-    const created = await prisma.$transaction(async (tx) => {
-      const poll = await tx.poll.create({
-        data: {
-          title,
-          description: description ?? undefined,
-          eventId,
-          creatorId: req.user.id,
-          settings: {
-            create: {
-              allowMultipleSelections:
-                settings?.allowMultipleSelections ?? false,
-              voterPermission: (settings?.voterPermission ??
-                "ALL_ATTENDEES") as any,
-              resultVisibility: (settings?.resultVisibility ??
-                "VISIBLE_TO_ALL") as any,
-            },
-          },
-        },
-        select: { id: true },
-      });
+    const pollOptions = options.map((text, index) => ({ text, order: index }));
 
-      await tx.pollOption.createMany({
-        data: options.map((text, idx) => ({
-          text,
-          order: idx,
-          pollId: poll.id,
-        })),
-      });
-      return poll;
+    const newPoll = await prisma.poll.create({
+      data: {
+        title,
+        description,
+        eventId,
+        creatorId: req.user.id,
+        settings: { create: settings },
+        options: { createMany: { data: pollOptions } },
+      },
+      select: { id: true },
     });
 
-    return res.status(201).json({ data: created });
+    return res.status(201).json({ data: newPoll });
   } catch (err) {
     console.error("Create poll error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.get("/", requireAuth, async (req, res) => {
+// Get all polls for an event
+router.get("/", requireAuth, requireEventMember, async (req, res) => {
   try {
-    const eventId = req.params.id as string;
+    const eventId = req.event!.id;
+    const userId = req.user.id;
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
       select: { hostId: true, coHosts: { select: { id: true } } },
     });
-    if (!event) return res.status(404).json({ error: "Event not found" });
-    const isHost = event.hostId === req.user.id;
-    const isCoHost = event.coHosts.some((c) => c.id === req.user.id);
-    const isHostOrCoHost = isHost || isCoHost;
 
-    let attendee: { status: string } | null = null;
-    if (!isHostOrCoHost) {
-      attendee = await prisma.eventAttendee.findUnique({
-        where: { eventId_userId: { eventId, userId: req.user.id } },
-        select: { status: true },
-      });
-      if (!attendee)
-        return res.status(403).json({ error: "Not invited to event" });
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
     }
+
+    const isHostOrCoHost = event.hostId === userId || event.coHosts.some((c) => c.id === userId);
+
+    const attendee = await prisma.eventAttendee.findUnique({
+      where: { eventId_userId: { eventId, userId } },
+      select: { status: true },
+    });
 
     const polls = await prisma.poll.findMany({
       where: { eventId },
@@ -131,208 +112,120 @@ router.get("/", requireAuth, async (req, res) => {
         },
         settings: true,
         responses: {
-          where: { userId: req.user.id },
+          where: { userId },
           select: { pollOptionId: true },
         },
       },
     });
 
-    const visibleToUser = (voterPermission: string) => {
-      if (isHostOrCoHost) return true;
-      if (voterPermission === "HOSTS_ONLY") return false;
-      if (voterPermission === "ACCEPTED_ATTENDEES")
-        return attendee?.status === "ACCEPTED";
-      return !!attendee;
-    };
+    const visiblePolls = polls
+      .filter((poll) => isPollVisibleToUser(poll.settings?.voterPermission, isHostOrCoHost, attendee?.status))
+      .map((poll) => formatPollResponse(poll, isHostOrCoHost));
 
-    const mapped = polls
-      .filter((p) =>
-        visibleToUser(p.settings?.voterPermission ?? "ALL_ATTENDEES")
-      )
-      .map((p) => {
-        const mySelections = p.responses.map((r) => r.pollOptionId);
-        const isClosed = p.status !== "OPEN";
-        const vis = p.settings?.resultVisibility ?? "VISIBLE_TO_ALL";
-        const canSeeCounts =
-          vis === "VISIBLE_TO_ALL" ||
-          (vis === "VISIBLE_TO_HOSTS_ONLY" && isHostOrCoHost) ||
-          (vis === "VISIBLE_AFTER_VOTING" && mySelections.length > 0) ||
-          (vis === "HIDDEN_UNTIL_CLOSED" && isClosed);
-
-        return {
-          id: p.id,
-          title: p.title,
-          description: p.description,
-          status: p.status,
-          settings: p.settings,
-          options: p.options.map((o) => ({
-            id: o.id,
-            text: o.text,
-            order: o.order,
-            count: canSeeCounts ? o._count.responses : undefined,
-          })),
-          mySelections,
-        };
-      });
-
-    return res.status(200).json({ data: mapped });
+    return res.status(200).json({ data: visiblePolls });
   } catch (err) {
     console.error("List polls error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.patch("/:pollId", requireAuth, async (req, res) => {
+// Update a poll
+router.patch("/:pollId", requireAuth, requireHostOrCoHost, async (req, res) => {
   try {
-    const { id: eventId, pollId } = req.params as {
-      id: string;
-      pollId: string;
-    };
-    if (typeof (req.body as any)?.settings !== "undefined") {
-      return res
-        .status(400)
-        .json({ error: "Updating poll settings is not allowed" });
-    }
-    const parsed = updatePollSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res
-        .status(400)
-        .json({ error: "Invalid body", details: parsed.error.flatten() });
+    const { pollId } = req.params;
+    const eventId = req.event!.id;
+
+    if (req.body?.settings !== undefined) {
+      return res.status(400).json({ error: "Updating poll settings is not allowed" });
     }
 
-    const { allowed } = await isHostOrCoHost(eventId, req.user.id);
-    if (!allowed) return res.status(403).json({ error: "Forbidden" });
+    const parsed = updatePollSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid body", details: parsed.error.flatten() });
+    }
 
     const poll = await prisma.poll.findUnique({
       where: { id: pollId },
-      select: { id: true, eventId: true },
+      select: { eventId: true },
     });
-    if (!poll || poll.eventId !== eventId)
+
+    if (!poll || poll.eventId !== eventId) {
       return res.status(404).json({ error: "Poll not found" });
+    }
 
     const { title, description, status } = parsed.data;
 
-    const updated = await prisma.$transaction(async (tx) => {
-      const pollUpdate = await tx.poll.update({
-        where: { id: pollId },
-        data: {
-          title,
-          description:
-            description === undefined ? undefined : (description ?? null),
-          status: status as any,
-        },
-        select: { id: true },
-      });
-
-      return pollUpdate;
+    const updatedPoll = await prisma.poll.update({
+      where: { id: pollId },
+      data: {
+        title,
+        description: description,
+        status: status,
+      },
+      select: { id: true },
     });
 
-    return res.status(200).json({ data: updated });
+    return res.status(200).json({ data: updatedPoll });
   } catch (err) {
     console.error("Update poll error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.post("/:pollId/vote", requireAuth, async (req, res) => {
+// Vote in a poll
+router.post("/:pollId/vote", requireAuth, requireEventMember, async (req, res) => {
   try {
-    const { id: eventId, pollId } = req.params as {
-      id: string;
-      pollId: string;
-    };
+    const { pollId } = req.params;
+    const eventId = req.event!.id;
+    const userId = req.user.id;
+
     const parsed = voteSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res
-        .status(400)
-        .json({ error: "Invalid body", details: parsed.error.flatten() });
+      return res.status(400).json({ error: "Invalid body", details: parsed.error.flatten() });
     }
+
     const { optionIds } = parsed.data;
 
     const poll = await prisma.poll.findUnique({
       where: { id: pollId },
       include: {
-        event: {
-          select: { id: true, hostId: true, coHosts: { select: { id: true } } },
-        },
+        event: { select: { hostId: true, coHosts: { select: { id: true } } } },
         settings: true,
         options: { select: { id: true } },
       },
     });
-    if (!poll || poll.eventId !== eventId)
+
+    if (!poll || poll.eventId !== eventId) {
       return res.status(404).json({ error: "Poll not found" });
+    }
 
     if (poll.status !== "OPEN") {
       return res.status(400).json({ error: "Poll is closed" });
     }
 
-    const isHost = poll.event.hostId === req.user.id;
-    const isCoHost = poll.event.coHosts.some((c) => c.id === req.user.id);
+    const isHostOrCoHost = poll.event.hostId === userId || poll.event.coHosts.some((c) => c.id === userId);
 
-    const voter = poll.settings?.voterPermission ?? ("ALL_ATTENDEES" as any);
-    if (!isHost && !isCoHost) {
-      if (voter === "HOSTS_ONLY") {
-        return res.status(403).json({ error: "Voting restricted to hosts" });
-      }
-      if (voter === "ACCEPTED_ATTENDEES") {
-        const attendee = await prisma.eventAttendee.findUnique({
-          where: { eventId_userId: { eventId, userId: req.user.id } },
-          select: { status: true },
-        });
-        if (!attendee || attendee.status !== "ACCEPTED") {
-          return res.status(403).json({ error: "Not eligible to vote" });
-        }
-      } else if (voter === "ALL_ATTENDEES") {
-        const attendee = await prisma.eventAttendee.findUnique({
-          where: { eventId_userId: { eventId, userId: req.user.id } },
-          select: { status: true },
-        });
-        if (!attendee) {
-          return res.status(403).json({ error: "Not invited to event" });
-        }
-      }
+    const eligibilityError = await checkVotingEligibility(
+      poll.settings?.voterPermission,
+      isHostOrCoHost,
+      eventId,
+      userId
+    );
+    if (eligibilityError) {
+      return res.status(403).json({ error: eligibilityError });
     }
 
-    const validOptionIds = new Set(poll.options.map((o) => o.id));
+    const validOptionIds = new Set(poll.options.map((option) => option.id));
     if (!optionIds.every((id) => validOptionIds.has(id))) {
       return res.status(400).json({ error: "Invalid option selection" });
     }
 
-    const multiple = !!poll.settings?.allowMultipleSelections;
-    if (!multiple && optionIds.length !== 1) {
+    const allowMultiple = poll.settings?.allowMultipleSelections ?? false;
+    if (!allowMultiple && optionIds.length !== 1) {
       return res.status(400).json({ error: "Multiple selections not allowed" });
     }
 
-    await prisma.$transaction(async (tx) => {
-      if (!multiple) {
-        await tx.pollResponse.deleteMany({
-          where: { pollId, userId: req.user.id },
-        });
-        await tx.pollResponse.create({
-          data: {
-            pollId,
-            pollOptionId: optionIds[0],
-            userId: req.user.id,
-          },
-        });
-      } else {
-        await tx.pollResponse.deleteMany({
-          where: {
-            pollId,
-            userId: req.user.id,
-            NOT: { pollOptionId: { in: optionIds } },
-          },
-        });
-        for (const oid of optionIds) {
-          await tx.pollResponse.upsert({
-            where: {
-              userId_pollOptionId: { userId: req.user.id, pollOptionId: oid },
-            },
-            update: {},
-            create: { pollId, pollOptionId: oid, userId: req.user.id },
-          });
-        }
-      }
-    });
+    await saveVotes(pollId, userId, optionIds, allowMultiple);
 
     return res.status(204).send();
   } catch (err) {
