@@ -1,3 +1,4 @@
 node_modules
 .turbo
 TODO.md
+.env*

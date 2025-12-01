@@ -27,21 +27,15 @@ router.post("/join", requireAuth, async (req, res) => {
     }
 
     if (event.hostId === req.user.id) {
-      return res
-        .status(400)
-        .json({ error: "Host is already part of the event" });
+      return res.status(400).json({ error: "Host is already part of the event" });
     }
 
     const existing = event.attendees[0];
     if (existing?.status === "ACCEPTED") {
-      return res
-        .status(200)
-        .json({ data: { status: "ACCEPTED" as const }, reused: true });
+      return res.status(200).json({ data: { status: "ACCEPTED" as const }, reused: true });
     }
     if (existing?.status === "PENDING") {
-      return res
-        .status(200)
-        .json({ data: { status: "PENDING" as const }, reused: true });
+      return res.status(200).json({ data: { status: "PENDING" as const }, reused: true });
     }
 
     const status = event.requireApproval ? "PENDING" : "ACCEPTED";
@@ -231,13 +225,10 @@ router.post("/:userId/decision", requireAuth, async (req, res) => {
     });
 
     if (!attendee || attendee.status !== "PENDING") {
-      return res
-        .status(400)
-        .json({ error: "Attendee not found or not pending" });
+      return res.status(400).json({ error: "Attendee not found or not pending" });
     }
 
-    const newStatus =
-      parsed.data.decision === "APPROVE" ? "ACCEPTED" : "DECLINED";
+    const newStatus = parsed.data.decision === "APPROVE" ? "ACCEPTED" : "DECLINED";
 
     const updated = await prisma.eventAttendee.update({
       where: {
@@ -267,9 +258,7 @@ router.post("/decisions", requireAuth, async (req, res) => {
     const id = req.params.id;
     const parsed = attendeeBulkDecisionSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res
-        .status(400)
-        .json({ error: "Invalid body", details: parsed.error.flatten() });
+      return res.status(400).json({ error: "Invalid body", details: parsed.error.flatten() });
     }
 
     const event = await prisma.event.findUnique({
@@ -289,9 +278,7 @@ router.post("/decisions", requireAuth, async (req, res) => {
       return res.status(403).json({ error: "Forbidden" });
     }
 
-    const decisionMap = new Map(
-      parsed.data.decisions.map((d) => [d.userId, d.decision])
-    );
+    const decisionMap = new Map(parsed.data.decisions.map((d) => [d.userId, d.decision]));
     const targetUserIds = Array.from(decisionMap.keys());
 
     const existing = await prisma.eventAttendee.findMany({
@@ -299,9 +286,7 @@ router.post("/decisions", requireAuth, async (req, res) => {
       select: { userId: true, status: true },
     });
 
-    const pendingSet = new Set(
-      existing.filter((e) => e.status === "PENDING").map((e) => e.userId)
-    );
+    const pendingSet = new Set(existing.filter((e) => e.status === "PENDING").map((e) => e.userId));
 
     const toApprove: string[] = [];
     const toDecline: string[] = [];
